@@ -471,6 +471,13 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
 .cloud-table td:first-child { color:var(--muted); width:38%; }
 #authLoading { position:absolute; inset:0; z-index:9000; background:rgba(248,250,252,.85); display:none; align-items:center; justify-content:center; font-weight:700; color:var(--accent-dark); }
 #authLoading.show { display:flex; }
+.interest-picker { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px; }
+.interest-chip { border:1.5px solid #cbd5e1; background:#fff; color:var(--text); border-radius:999px; padding:7px 13px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer; line-height:1.2; }
+.interest-chip[aria-pressed="true"] { background:var(--accent-soft); border-color:var(--accent); color:var(--accent-dark); }
+.interest-chip[aria-pressed="true"]::before { content:'✓ '; }
+.interest-chip:disabled { opacity:.45; cursor:not-allowed; }
+.interest-count { font-size:12px; font-weight:600; }
+.tag.add-tag { background:transparent; border:1.5px dashed var(--accent); cursor:pointer; font-family:inherit; }
 </style>
 </head>
 <body>
@@ -531,6 +538,8 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
       <label class="check-row"><input type="checkbox" class="edit-intent" value="Long-term"> Long-term</label>
       <label class="check-row"><input type="checkbox" class="edit-intent" value="Friendship"> Friendship</label>
       <label class="check-row"><input type="checkbox" class="edit-intent" value="Casual"> Casual</label>
+      <p class="muted" style="margin-top:12px;">Interests <span class="interest-count" id="editInterestCount">(optional · up to 8)</span></p>
+      <div class="interest-picker" id="editInterests" role="group" aria-label="Interests"></div>
       <textarea class="input" id="editBio" placeholder="Bio..." rows="3" style="margin-top:8px;"></textarea>
       <button class="btn" onclick="saveEditProfile()">Save Changes</button>
     </div>
@@ -587,6 +596,8 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
         <label class="check-row"><input type="checkbox" class="intent-cb" value="Long-term"> Long-term</label>
         <label class="check-row"><input type="checkbox" class="intent-cb" value="Friendship"> Friendship</label>
         <label class="check-row"><input type="checkbox" class="intent-cb" value="Casual"> Casual</label>
+        <p class="muted" style="margin-top:12px;">Interests <span class="interest-count" id="signupInterestCount">(optional · up to 8)</span></p>
+        <div class="interest-picker" id="signupInterests" role="group" aria-label="Interests"></div>
         <textarea class="input" id="bioInput" placeholder="Share a bit about your recovery journey and what you're looking for..." rows="3" style="margin-top:8px;"></textarea>
         <button class="btn" onclick="signupNext(4)">Continue</button>
       </div>
@@ -1108,6 +1119,9 @@ let matchOverlayAsync = false;
 
 const TAB_FOR_SCREEN = { discover: 'discover', matches: 'matches', chat: 'matches', events: 'events', eventAttendees: 'events', profile: 'profile' };
 
+// Interests vocabulary (user.tags). Declared early: loadState() normalizes saved tags on startup.
+const INTERESTS = ['Fitness','Outdoors','Hiking','Running','Yoga','Meditation','Coffee','Cooking','Music','Art','Reading','Travel','Board games','Gaming','Movies','Pets','Sports','Dancing','Photography','Volunteering','Community','Recovery','Recovery meetings','Faith'];
+const MAX_INTERESTS = 8;
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 }
@@ -1157,6 +1171,7 @@ function loadState() {
   if (state.user && typeof state.user !== 'object') { state.user = null; state.loggedIn = false; }
   if (state.user && !Array.isArray(state.user.photos)) state.user.photos = [];
   if (state.user && !Array.isArray(state.user.looking)) state.user.looking = [];
+  if (state.user) state.user.tags = cleanInterests(state.user.tags);
 }
 function saveState() {
   try {
@@ -1452,6 +1467,7 @@ function beginProfileSteps(prefill) {
   if (prefill && prefill.name && !document.getElementById('name').value) document.getElementById('name').value = prefill.name;
   currentSignupStep = 1;
   signupPhotos = [];
+  interestSel.signup = []; renderInterestPicker('signup');
   signupGeo = null; renderSignupLocation();
   renderPhotoGrid('signup');
   updateSignupStep();
@@ -1552,6 +1568,30 @@ function signupPrev() {
   if (currentSignupStep > 1) { currentSignupStep--; updateSignupStep(); }
   else showScreen('onboarding');
 }
+/* ---------- Interests (stored as user.tags; samples use the same field) ---------- */
+function cleanInterests(list) {
+  if (!Array.isArray(list)) return [];
+  const out = [];
+  list.forEach(t => { t = typeof t === 'string' ? t.trim().slice(0, 30) : ''; if (t && t !== 'Real member' && !out.includes(t)) out.push(t); });
+  return out.slice(0, MAX_INTERESTS);
+}
+const interestSel = { signup: [], edit: [] };
+function renderInterestPicker(which) {
+  const box = document.getElementById(which + 'Interests'); if (!box) return;
+  const sel = interestSel[which];
+  const all = INTERESTS.concat(sel.filter(t => !INTERESTS.includes(t)));
+  const full = sel.length >= MAX_INTERESTS;
+  box.innerHTML = all.map(t => { const on = sel.includes(t); return `<button type="button" class="interest-chip" aria-pressed="${on}" data-interest="${esc(t)}"${!on && full ? ' disabled' : ''}>${esc(t)}</button>`; }).join('');
+  box.querySelectorAll('.interest-chip').forEach(b => { b.onclick = () => toggleInterest(which, b.dataset.interest); });
+  document.getElementById(which + 'InterestCount').textContent = sel.length ? `${sel.length} / ${MAX_INTERESTS} chosen` : `(optional · up to ${MAX_INTERESTS})`;
+}
+function toggleInterest(which, t) {
+  const sel = interestSel[which], i = sel.indexOf(t);
+  if (i >= 0) sel.splice(i, 1);
+  else if (sel.length >= MAX_INTERESTS) return toast(`You can pick up to ${MAX_INTERESTS} interests`);
+  else sel.push(t);
+  renderInterestPicker(which);
+}
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 function completeSignup() {
   if (!signupGeo) { currentSignupStep = SIGNUP_STEPS; updateSignupStep(); renderSignupLocation(); return toast('Please allow location to finish creating your account'); }
@@ -1570,7 +1610,8 @@ function completeSignup() {
     program: val('programInput'),
     photos: signupPhotos.slice(0, 6),
     bio: val('bioInput'),
-    looking: Array.from(document.querySelectorAll('.intent-cb:checked')).map(cb => cb.value)
+    looking: Array.from(document.querySelectorAll('.intent-cb:checked')).map(cb => cb.value),
+    tags: cleanInterests(interestSel.signup)
   };
   state.user.lat = signupGeo.lat; state.user.lng = signupGeo.lng; state.user.geoLoc = state.user.location; state.user.geoSrc = 'device';
   state.loggedIn = true;
@@ -1683,6 +1724,7 @@ function openEditProfile() {
   set('editJob', u.job); set('editHeight', u.height); set('editKids', u.kids); set('editSmoker', u.smoker); set('editReligion', u.religion);
   set('editSobriety', u.sober); set('editProgram', u.program); set('editBio', u.bio);
   document.querySelectorAll('.edit-intent').forEach(cb => { cb.checked = (u.looking || []).includes(cb.value); });
+  interestSel.edit = cleanInterests(u.tags); renderInterestPicker('edit');
   editPhotos = (u.photos || []).slice();
   renderPhotoGrid('edit');
   showScreen('editProfile');
@@ -1706,7 +1748,8 @@ function saveEditProfile() {
     program: val('editProgram'),
     photos: editPhotos.slice(0, 6),
     bio: val('editBio'),
-    looking: Array.from(document.querySelectorAll('.edit-intent:checked')).map(cb => cb.value)
+    looking: Array.from(document.querySelectorAll('.edit-intent:checked')).map(cb => cb.value),
+    tags: cleanInterests(interestSel.edit)
   };
   if (!prev || prev.location !== state.user.location) { delete state.user.lat; delete state.user.lng; delete state.user.geoLoc; delete state.user.geoSrc; }
   state.loggedIn = true;
@@ -1741,7 +1784,8 @@ function updateProfileUI() {
   document.getElementById('userBio').textContent = u.bio || 'No bio yet — add one in Edit Profile.';
   const rows = [['Gender', u.gender], ['Location', u.location], ['Work', u.job], ['Height', u.height], ['Kids', u.kids], ['Smoking', u.smoker], ['Religion', u.religion], ['Program', u.program], ['Photos', (u.photos || []).length + ' / 6']];
   document.getElementById('userDetails').innerHTML = rows.map(([k, v]) => `<div><span class="muted">${k}</span><br><strong>${esc(v || '—')}</strong></div>`).join('') +
-    `<div style="grid-column:1/-1;"><span class="muted">Intentions</span><br><strong>${esc((u.looking || []).join(', ') || '—')}</strong></div>`;
+    `<div style="grid-column:1/-1;"><span class="muted">Intentions</span><br><strong>${esc((u.looking || []).join(', ') || '—')}</strong></div>` +
+    `<div style="grid-column:1/-1;" id="userInterests"><span class="muted">Interests</span><br>${cleanInterests(u.tags).length ? cleanInterests(u.tags).map(t => `<span class="tag">${esc(t)}</span>`).join('') : '<button type="button" class="tag add-tag" onclick="openEditProfile()">+ Add interests</button>'}</div>`;
 }
 
 /* ---------- Discover ---------- */
@@ -3029,7 +3073,7 @@ async function refreshCloudPanel() {
     box.innerHTML = '<table class="cloud-table">' +
       cloudRow('Name', d.name) + cloudRow('Age', d.age) + cloudRow('Gender', d.gender) + cloudRow('Location', d.location) +
       cloudRow('Work', d.job) + cloudRow('Height', d.height) + cloudRow('Kids', d.kids) + cloudRow('Smoking', d.smoker) + cloudRow('Religion', d.religion) +
-      cloudRow('Sober', d.sober) + cloudRow('Program', d.program) + cloudRow('Looking for', (d.looking || []).join(', ')) +
+      cloudRow('Sober', d.sober) + cloudRow('Program', d.program) + cloudRow('Looking for', (d.looking || []).join(', ')) + cloudRow('Interests', (d.tags || []).join(', ')) +
       cloudRow('Bio', d.bio) + cloudRow('Photos', (d.photos || []).length + (photoKb ? ' (' + photoKb + ')' : '')) +
       cloudRow('Joined', ts(d.createdAt)) + cloudRow('Last saved', ts(d.updatedAt)) +
       '</table>';
@@ -3162,7 +3206,7 @@ const db = getFirestore(app);
 if (EMU) { connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true }); connectFirestoreEmulator(db, '127.0.0.1', 8080); }
 setPersistence(auth, browserLocalPersistence).catch(() => {});
 
-const PROFILE_FIELDS = ['name','age','gender','location','job','height','kids','smoker','religion','stillUse','sober','program','bio','looking'];
+const PROFILE_FIELDS = ['name','age','gender','location','job','height','kids','smoker','religion','stillUse','sober','program','bio','looking','tags'];
 const MAX_DOC_BYTES = 900 * 1024; // stay well under Firestore's 1 MiB doc limit
 
 // Shrink a data URL photo (photos are kept inside the Firestore doc for now).
@@ -3200,6 +3244,7 @@ async function saveProfile(user, isNew) {
   PROFILE_FIELDS.forEach(k => { if (user[k] !== undefined) data[k] = user[k]; });
   data.age = parseInt(data.age, 10) || null;
   data.looking = Array.isArray(data.looking) ? data.looking : [];
+  data.tags = cleanInterests(user.tags);
   data.stillUse = data.stillUse || '';
   data.stillUseList = data.stillUse ? data.stillUse.split(', ').filter(Boolean) : [];
   data.lat = hasCoords(user) ? user.lat : null; // null clears stale coords when the city changed and couldn't be found
@@ -3226,6 +3271,7 @@ function toLocalUser(d) {
   PROFILE_FIELDS.forEach(k => { u[k] = d[k] !== undefined ? d[k] : ''; });
   if (!u.stillUse && Array.isArray(d.stillUseList)) u.stillUse = d.stillUseList.join(', ');
   u.looking = Array.isArray(d.looking) ? d.looking : [];
+  u.tags = cleanInterests(d.tags);
   u.photos = Array.isArray(d.photos) ? d.photos : [];
   if (hasCoords(d)) { u.lat = d.lat; u.lng = d.lng; u.geoLoc = u.location; }
   return u;
@@ -3241,7 +3287,7 @@ async function loadCloudMembers(myUid) {
       const p = toLocalUser(d);
       p.age = parseInt(p.age, 10) || 18;
       p.sober = p.sober || 'Sober curious';
-      p.tags = ['Real member'].concat(Array.isArray(d.tags) ? d.tags : []);
+      p.tags = ['Real member'].concat(cleanInterests(d.tags));
       p.uid = ds.id;
       list.push(p);
     });
