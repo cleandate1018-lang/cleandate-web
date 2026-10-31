@@ -282,6 +282,18 @@ header .btn { flex-shrink: 0; }
 .gallery img.sel { border-color: var(--accent); }
 .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; margin-top:14px; }
 .prem-row { display:flex; gap:12px; align-items:flex-start; padding:8px 0; }
+.prem-row.hl { background:#fff1f2; border-radius:12px; box-shadow:0 0 0 2px var(--accent); padding:10px 8px; margin:2px 0 6px; }
+.ly-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; cursor:pointer; }
+.ly-count { background:var(--accent); color:#fff; font-size:12px; font-weight:700; border-radius:999px; padding:2px 8px; line-height:1.4; }
+.ly-text { font-size:13px; color:var(--muted, #64748b); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ly-cta { font-size:13px; font-weight:700; color:var(--accent); white-space:nowrap; }
+.ly-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; }
+.ly-card { position:relative; flex-shrink:0; width:78px; height:100px; border-radius:14px; overflow:hidden; border:2px solid #fecdd3; padding:0; background:#e2e8f0; cursor:pointer; }
+.ly-card.super { border-color:#f59e0b; }
+.ly-img { position:absolute; inset:-14px; filter:blur(12px) saturate(1.1); transform:scale(1.15); }
+.ly-lock { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:20px; text-shadow:0 1px 3px rgba(0,0,0,.35); }
+.ly-star { position:absolute; top:4px; right:4px; font-size:14px; background:#fffbeb; border-radius:999px; padding:1px 3px; line-height:1.2; }
+.ly-more { display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent); background:#fff1f2; }
 .prem-row + .prem-row { border-top:1px solid #eef2f6; }
 .prem-row span { font-size:22px; line-height:1.2; width:28px; text-align:center; }
 .prem-row p { margin:2px 0 0; font-size:13px; }
@@ -686,6 +698,10 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
   <div id="matches" class="screen has-nav">
     <header><div class="logo">Matches</div></header>
     <div class="content">
+      <div id="likesYou" style="display:none; margin-bottom:18px;">
+        <div class="ly-head" onclick="openPremium('likes')"><span class="muted" style="font-weight:600;">Likes you</span><span class="ly-count" id="likesYouCount">0</span><span class="ly-text" id="likesYouText"></span><span class="ly-cta">See who ›</span></div>
+        <div id="likesYouRow" class="ly-row"></div>
+      </div>
       <div style="margin-bottom:16px;">
         <div class="muted" style="margin-bottom:10px; font-weight:600;">New Matches</div>
         <div id="newMatches" style="display:flex; gap:16px; overflow-x:auto; padding-bottom:8px;"></div>
@@ -903,7 +919,8 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
         <p style="margin:0; opacity:.9;">Coming soon. Clean Date stays free to join, and Premium adds extras.</p>
       </div>
       <div class="card">
-        <div class="prem-row"><span>❤️</span><div><b>See who liked you</b><p class="muted">Skip the guessing and match faster.</p></div></div>
+        <p id="premLikesNote" style="display:none; margin:0 0 6px; font-weight:600;"></p>
+        <div class="prem-row" id="premSeeLikes"><span>❤️</span><div><b>See who liked you</b><p class="muted">Skip the guessing and match faster.</p></div></div>
         <div class="prem-row"><span>♾️</span><div><b>Unlimited likes</b><p class="muted">No daily limit on swiping right.</p></div></div>
         <div class="prem-row"><span>🎯</span><div><b>Advanced filters</b><p class="muted">Filter by sobriety time, program, and more.</p></div></div>
         <div class="prem-row"><span>🚀</span><div><b>Monthly profile boost</b><p class="muted">Get shown to more people nearby for 30 minutes.</p></div></div>
@@ -1075,7 +1092,10 @@ let state = {
   events: JSON.parse(JSON.stringify(DEFAULT_EVENTS))
 };
 
-const profiles = [
+// Launch switch: sample (demo) profiles. Set to false at launch to remove them everywhere,
+// including the sample "Likes you" entries below (SAMPLE_LIKES).
+const SHOW_SAMPLE_PROFILES = true;
+const SAMPLE_PROFILES_ALL = [
   { name: "Alex", age: 28, sober: "1 year sober", bio: "Hiking, coffee dates, board games, and early mornings. Looking for someone who gets that life is better without the hangover.", tags: ["Hiking","Coffee","Recovery","Outdoors"], kids: "No kids", height: "5'10\"", smoker: "Non-smoker", religion: "Spiritual but not religious", job: "Graphic Designer", location: "New Haven, CT", lat: 41.3083, lng: -72.9279, looking: ["Dating","Long-term"], program: "AA", gender: "Male", photos: [
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop",
     "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=1000&fit=crop",
@@ -1107,13 +1127,16 @@ const profiles = [
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=1000&fit=crop"
   ] }
 ];
+const profiles = SHOW_SAMPLE_PROFILES ? SAMPLE_PROFILES_ALL : [];
+// Sample profiles that "already like you" (testing / demo only; follows SHOW_SAMPLE_PROFILES).
+const SAMPLE_LIKES = SHOW_SAMPLE_PROFILES ? [{ name: 'Sophia', super: true }, { name: 'Taylor' }, { name: 'Morgan' }] : [];
 
 const NAV_ICON_CARDS = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
   <rect x="4" y="5" width="13" height="17" rx="2.5" transform="rotate(-12 10.5 13.5)"/>
   <rect x="11" y="5" width="13" height="17" rx="2.5" transform="rotate(8 17.5 13.5)"/>
 </svg>`;
 let cloudProfiles = []; // real members loaded from Firestore
-const RT = { on: false, uid: null, likedAt: new Set(), closed: new Set(), active: new Set(), known: null, msgs: {}, local: {}, cache: {}, fetching: {}, lastList: [] };
+const RT = { on: false, uid: null, likedAt: new Set(), closed: new Set(), active: new Set(), likesMe: [], known: null, msgs: {}, local: {}, cache: {}, fetching: {}, lastList: [] };
 let shownProfile = null;
 let matchOverlayAsync = false;
 
@@ -1159,6 +1182,7 @@ function loadState() {
   const seen = new Set();
   state.matches = state.matches.filter(m => m && m.name && !m.rt && !seen.has(m.uid || m.name) && seen.add(m.uid || m.name));
   state.blockedUids = state.blockedUids && typeof state.blockedUids === 'object' && !Array.isArray(state.blockedUids) ? state.blockedUids : {};
+  state.passed = Array.isArray(state.passed) ? state.passed.filter(x => typeof x === 'string') : [];
   state.rtRead = state.rtRead && typeof state.rtRead === 'object' && !Array.isArray(state.rtRead) ? state.rtRead : {};
   state.chats = state.chats && typeof state.chats === 'object' ? state.chats : {};
   state.removed = Array.isArray(state.removed) ? state.removed : [];
@@ -1192,7 +1216,12 @@ function saveState() {
 
 let premiumBack = 'profile';
 function openPremium(from) {
-  premiumBack = from === 'settings' ? 'settings' : 'profile';
+  premiumBack = from === 'settings' ? 'settings' : from === 'likes' ? 'matches' : 'profile';
+  const fromLikes = from === 'likes';
+  document.getElementById('premSeeLikes').classList.toggle('hl', fromLikes);
+  const note = document.getElementById('premLikesNote'), nLikes = fromLikes ? likesYou().length : 0;
+  note.style.display = nLikes ? '' : 'none';
+  note.textContent = nLikes ? (nLikes === 1 ? '1 person already likes you. Premium shows you who.' : `${nLikes} people already like you. Premium shows you who.`) : '';
   const done = localStorageSafeGet('cleandate_premium_list');
   document.getElementById('premiumForm').style.display = done ? 'none' : '';
   document.getElementById('premiumThanks').style.display = done ? '' : 'none';
@@ -1898,9 +1927,10 @@ let lastMatchIndex = -1;
 function swipeRight() {
   const p = currentProfile();
   if (!p || swipeLocked) return;
+  unPass(p);
   if (p.uid && rtReady()) { animateSwipe(true, true); rtSendLike(p, false); return; } // real member: a real like
   const already = state.matches.findIndex(m => sameMatch(m, p));
-  const isMatch = window.__forceMatch !== undefined ? window.__forceMatch : Math.random() > 0.55;
+  const isMatch = window.__forceMatch !== undefined ? window.__forceMatch : (sampleLikesMe(p) || Math.random() > 0.55);
   if (isMatch && already === -1) {
     state.matches.push(localMatchEntry(p, false));
     lastMatchIndex = state.matches.length - 1;
@@ -1913,7 +1943,10 @@ function swipeRight() {
     animateSwipe(true, true);
   }
 }
-function swipeLeft() { if (!swipeLocked && currentProfile()) animateSwipe(false, true); }
+function swipeLeft() { const p = currentProfile(); if (!swipeLocked && p) { notePass(p); animateSwipe(false, true); } }
+// Passes are remembered (local only) so someone you passed on drops out of "Likes you".
+function notePass(p) { const k = pkey(p); state.passed = (state.passed || []).filter(x => x !== k).concat(k).slice(-1000); }
+function unPass(p) { const k = pkey(p); if ((state.passed || []).includes(k)) state.passed = state.passed.filter(x => x !== k); }
 
 /* ---------- Clean Likes (super like) ---------- */
 function updateStarBtn() {
@@ -1931,8 +1964,9 @@ function cleanLike() {
   if (!p) return;
   state.cleanLikes = Math.max(0, (state.cleanLikes || 0) - 1);
   updateStarBtn();
+  unPass(p);
   const already = state.matches.findIndex(m => sameMatch(m, p));
-  const isMatch = window.__forceMatch !== undefined ? window.__forceMatch : Math.random() < 0.9;
+  const isMatch = window.__forceMatch !== undefined ? window.__forceMatch : (sampleLikesMe(p) || Math.random() < 0.9);
   const card = document.getElementById('profileCard');
   swipeLocked = true;
   card.style.transition = 'transform 0.2s ease-out';
@@ -2113,11 +2147,11 @@ function rtRefreshUI() {
   }
 }
 window.rtBegin = uid => {
-  Object.assign(RT, { on: true, uid, likedAt: new Set(), closed: new Set(), active: new Set(), known: null, msgs: {}, local: {}, lastList: [] });
+  Object.assign(RT, { on: true, uid, likedAt: new Set(), closed: new Set(), active: new Set(), likesMe: [], known: null, msgs: {}, local: {}, lastList: [] });
 };
 window.rtReset = () => {
   const hadRt = state.matches.some(m => m.rt);
-  Object.assign(RT, { on: false, uid: null, likedAt: new Set(), closed: new Set(), active: new Set(), known: null, msgs: {}, local: {}, lastList: [] });
+  Object.assign(RT, { on: false, uid: null, likedAt: new Set(), closed: new Set(), active: new Set(), likesMe: [], known: null, msgs: {}, local: {}, lastList: [] });
   if (hadRt) {
     state.matches = state.matches.filter(m => !m.rt);
     activeChat = -1; lastMatchIndex = -1;
@@ -2125,6 +2159,7 @@ window.rtReset = () => {
   updateNavBadge();
   if (hadRt && document.getElementById('matches').classList.contains('active')) renderMatches();
 };
+window.rtOnLikesMe = list => { RT.likesMe = Array.isArray(list) ? list : []; if (document.getElementById('matches').classList.contains('active')) renderLikesYou(); };
 window.rtOnLiked = uids => { uids.forEach(u => RT.likedAt.add(u)); rtRefreshUI(); };
 window.rtOnMatches = (list, first) => {
   RT.lastList = list;
@@ -2228,7 +2263,66 @@ function chatFor(name) {
   if (!state.chats[name]) state.chats[name] = [{ from: 'them', text: GREETING }];
   return state.chats[name];
 }
+/* ---------- Likes you (who is shown is a Premium feature: photos blurred, names hidden) ---------- */
+function sampleLikesMe(p) { return !!(p && !p.uid && SAMPLE_LIKES.some(l => l.name === p.name)); }
+function likesYou() {
+  const passed = new Set(state.passed || []), removed = new Set(state.removed || []), blocked = state.blockedUids || {};
+  const out = [];
+  SAMPLE_LIKES.forEach(l => {
+    const p = profiles.find(x => x.name === l.name);
+    if (!p || removed.has(p.name) || passed.has(pkey(p)) || state.matches.some(m => sameMatch(m, p))) return;
+    out.push({ super: !!l.super, photo: (p.photos || [])[0] || '' });
+  });
+  const seenUids = new Set();
+  (RT.likesMe || []).forEach(l => {
+    const u = l && l.from;
+    if (!u || seenUids.has(u) || u === RT.uid || blocked[u] || RT.active.has(u) || RT.closed.has(u) || RT.likedAt.has(u) || passed.has('uid:' + u) || state.matches.some(m => m.uid === u)) return;
+    seenUids.add(u);
+    const p = rtProfile(u);
+    if (!p) rtFetch(u).then(x => { if (x && document.getElementById('matches').classList.contains('active')) renderLikesYou(); });
+    out.push({ super: !!l.super, photo: p && p.photos && p.photos[0] || '', t: l.t || 0 });
+  });
+  return out.sort((a, b) => (b.super - a.super) || ((b.t || 0) - (a.t || 0)));
+}
+// Only a tiny (about 16 px) copy of the photo is ever put on the page, then blurred, so faces can't be recovered.
+const likeThumbs = {};
+function likeThumb(url) {
+  if (!url) return '';
+  if (/^https:\/\/images\.unsplash\.com\//.test(url)) return url.replace(/w=\d+&h=\d+/, 'w=16&h=20');
+  if (likeThumbs[url] !== undefined) return likeThumbs[url];
+  likeThumbs[url] = '';
+  if (/^data:image\//.test(url)) {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas'); c.width = 12; c.height = 15;
+        c.getContext('2d').drawImage(img, 0, 0, 12, 15);
+        likeThumbs[url] = c.toDataURL('image/jpeg', 0.6);
+        if (document.getElementById('matches').classList.contains('active')) renderLikesYou();
+      } catch (e) {}
+    };
+    img.src = url;
+  }
+  return '';
+}
+function renderLikesYou() {
+  const box = document.getElementById('likesYou');
+  if (!box) return;
+  const list = likesYou();
+  const n = list.length;
+  box.style.display = n ? '' : 'none';
+  document.getElementById('likesYouCount').textContent = n > 99 ? '99+' : String(n);
+  document.getElementById('likesYouText').textContent = n === 1 ? '1 person likes you' : `${n} people like you`;
+  document.getElementById('likesYouRow').innerHTML = list.slice(0, 12).map(l => {
+    const th = likeThumb(l.photo);
+    return `<button class="ly-card${l.super ? ' super' : ''}" onclick="openPremium('likes')" aria-label="${l.super ? 'Someone sent you a Clean Like. ' : 'Someone likes you. '}See who with Premium">
+      <div class="ly-img" style="background:${th ? esc(cssUrl(th)) + ' center/cover,' : ''} linear-gradient(135deg,#0d9488,#5eead4);"></div>
+      <span class="ly-lock" aria-hidden="true">🔒</span>${l.super ? '<span class="ly-star" title="Clean Like">⭐</span>' : ''}
+    </button>`;
+  }).join('') + (n > 12 ? `<button class="ly-card ly-more" onclick="openPremium('likes')">+${n - 12}</button>` : '');
+}
 function renderMatches() {
+  renderLikesYou();
   const nm = document.getElementById('newMatches');
   const ml = document.getElementById('messagesList');
   const idxs = state.matches.map((m, i) => i);
@@ -3147,7 +3241,7 @@ function createFloatingPhotos() {
   if (!container) return;
   // A tidy 3-column photo mosaic built from the sample profiles' main photos.
   const seen = new Set();
-  const urls = [0, 1, 2].flatMap(i => profiles.map(p => p.photos && p.photos[i]))
+  const urls = [0, 1, 2].flatMap(i => SAMPLE_PROFILES_ALL.map(p => p.photos && p.photos[i]))
     .filter(u => u && !seen.has(u) && seen.add(u))
     .map(u => u.replace('w=800&h=1000', 'w=300&h=400'));
   container.innerHTML = '';
@@ -3302,7 +3396,7 @@ async function loadCloudMembers(myUid) {
 // matches/{uidA_uidB}    {users:[a,b] sorted, status:'active'|'closed', createdAt, createdBy, lastMessage, lastAt, lastFrom, superBy[], closedBy?, closedAt?}
 // matches/{id}/messages/{auto} {from, text, img?, createdAt}
 // reports/{auto}         {reporter, reported, matchId, reason, createdAt, status:'open'}
-const RTM = { uid: null, off: false, unsubM: null, subs: new Map(), callSubs: new Map() };
+const RTM = { uid: null, off: false, unsubM: null, unsubL: null, subs: new Map(), callSubs: new Map() };
 const pairId = (a, b) => a < b ? a + '_' + b : b + '_' + a;
 const ms = t => (t && typeof t.toMillis === 'function') ? t.toMillis() : (typeof t === 'number' ? t : 0);
 function rtDenied(e, where_) {
@@ -3312,6 +3406,8 @@ function rtDenied(e, where_) {
 function rtStop() {
   if (RTM.unsubM) { try { RTM.unsubM(); } catch (e) {} }
   RTM.unsubM = null;
+  if (RTM.unsubL) { try { RTM.unsubL(); } catch (e) {} }
+  RTM.unsubL = null;
   RTM.subs.forEach(u => { try { u(); } catch (e) {} });
   RTM.subs.clear();
   RTM.callSubs.forEach(u => { try { u(); } catch (e) {} });
@@ -3356,6 +3452,14 @@ async function rtStart(uid) {
     window.rtOnMatches && window.rtOnMatches(list, first);
     first = false;
   }, e => rtDenied(e, 'matches'));
+  // "Likes you": likes aimed at me. Needs the rule that lets you list likes where to == you.
+  // If the rules aren't published yet (permission-denied) this fails silently: no error, just no real likes.
+  try {
+    RTM.unsubL = onSnapshot(query(collection(db, 'likes'), where('to', '==', uid)), snap => {
+      if (RTM.uid !== uid) return;
+      window.rtOnLikesMe && window.rtOnLikesMe(snap.docs.map(ds => { const d = ds.data({ serverTimestamps: 'estimate' }); return { from: d.from || '', super: d.super === true, t: ms(d.createdAt) }; }).filter(l => l.from && l.from !== uid));
+    }, () => { RTM.unsubL = null; window.rtOnLikesMe && window.rtOnLikesMe([]); });
+  } catch (e) { window.rtOnLikesMe && window.rtOnLikesMe([]); }
 }
 async function rtLike(to, isSuper) {
   const me = auth.currentUser && auth.currentUser.uid;
