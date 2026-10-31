@@ -209,7 +209,7 @@ footer a { font-weight:700; }
     btn.disabled = true; btn.textContent = 'Joining…';
     fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === false || j.success === 'false') throw new Error(j.message || ('HTTP ' + r.status)); return j; }); })
-      .then(function () { showThanks(name); })
+      .then(function () { try { if (window.cdCountSignup) window.cdCountSignup(); } catch (e) {} showThanks(name); })
       .catch(function (err) { console.warn('Waitlist submit failed:', err && err.message); $('wlError').classList.add('show'); })
       .then(function () { btn.disabled = false; btn.textContent = 'Join the waitlist'; });
   });
@@ -239,5 +239,34 @@ footer a { font-weight:700; }
   $('copyBtn').addEventListener('click', copyLink);
 })();
 </script>
+<script>/* Clean Date visit counter: counts the first visit per browser per day on cleandate.app only. No cookies, no personal info; only counters at abacus.jasoncameron.dev. Stats: https://cleandate.app/stats/ */
+(function(){try{
+var NS='cleandate-app-k7q2',API='https://abacus.jasoncameron.dev/hit/'+NS+'/',PAGE='wl';
+var h=location.hostname,ua=navigator.userAgent||'';
+if(h!=='cleandate.app'&&h!=='www.cleandate.app')return;
+if(window.Capacitor||/CleanDateApp\//.test(ua)||navigator.webdriver||/bot|crawl|spider|slurp|preview|headless|lighthouse|facebookexternalhit/i.test(ua))return;
+var ls=null;try{ls=window.localStorage;}catch(e){}
+function get(k){try{return ls&&ls.getItem(k);}catch(e){return null;}}
+function set(k,v){try{ls&&ls.setItem(k,v);}catch(e){}}
+if(get('cd_nocount')==='1')return;
+var d;try{d=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\D/g,'');}catch(e){d=new Date().toISOString().slice(0,10).replace(/\D/g,'');}
+var m=d.slice(0,6);
+function src(){var q='';try{q=(new URLSearchParams(location.search).get('utm_source')||'').toLowerCase();}catch(e){}
+var r='';try{r=document.referrer?new URL(document.referrer).hostname.toLowerCase():'';}catch(e){}
+var s=q+' '+r;
+if(/tiktok|^tt\b|musical/.test(s)||/musical_ly|bytedancewebview|trill_|tiktok/i.test(ua))return 'tiktok';
+if(/instagram|^ig\b/.test(s)||/Instagram/.test(ua))return 'instagram';
+if(/facebook|^fb\b|fb\.com|fb\.me|messenger/.test(s)||/FBAN|FBAV|FB_IAB|FBIOS|FB4A|Messenger/.test(ua))return 'facebook';
+if(/google/.test(s))return 'google';
+if(/reddit/.test(s))return 'reddit';
+if(/cleandate\.app$/.test(r))return 'site';
+if(q||r)return 'other';
+return 'direct';}
+function hit(k){try{fetch(API+k,{mode:'cors',credentials:'omit',keepalive:true,cache:'no-store'}).catch(function(){});}catch(e){}}
+var S=src();
+window.cdCountSignup=function(){hit('s-'+d);hit('st-'+S+'-'+m);hit('t-signup');};
+var seen=get('cd_seen_'+PAGE);if(seen===d)return;set('cd_seen_'+PAGE,d);
+hit('v-'+PAGE+'-'+d);hit('r-'+PAGE+'-'+S+'-'+m);hit('t-'+PAGE);
+}catch(e){}})();</script>
 </body>
 </html>
