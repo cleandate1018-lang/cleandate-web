@@ -33,12 +33,12 @@ a { color:var(--accent-dark); }
 .logo span { position:relative; z-index:1; }
 .logo img { position:relative; z-index:1; display:block; height:56px; width:auto; }
 .logo-heart { position:absolute; left:-2px; top:50%; width:56px; height:51px; transform:translateY(-50%) rotate(-10deg); fill:#99f6e4; opacity:.6; z-index:0; }
-.top { display:flex; justify-content:space-between; align-items:center; padding:18px 0; }
+.top { display:flex; justify-content:space-between; align-items:center; padding:12px 0; }
 .top .pill { font-size:14px; font-weight:700; text-decoration:none; background:var(--accent-soft); color:var(--accent-dark); padding:8px 14px; border-radius:999px; }
-.hero { padding:28px 0 12px; display:grid; gap:36px; align-items:center; }
+.hero { padding:8px 0 12px; display:grid; gap:36px; align-items:center; }
 .hero h1 { font-size:clamp(36px, 9vw, 60px); line-height:1.04; font-weight:850; letter-spacing:-1.6px; }
 .hero h1 em { font-style:normal; color:var(--accent); }
-.hero p.lead { font-size:18px; color:var(--muted); margin-top:14px; max-width:520px; }
+.hero p.lead { font-size:17px; color:var(--muted); margin-top:10px; max-width:520px; }
 .cta { display:inline-block; margin-top:22px; background:var(--accent); color:#fff; font-weight:700; font-size:17px; text-decoration:none; padding:16px 26px; border-radius:16px; box-shadow:0 10px 24px rgba(13,148,136,.25); }
 .cta:active { transform:scale(.98); }
 .small { font-size:13px; color:var(--muted); margin-top:10px; }
@@ -83,12 +83,23 @@ select.input { background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.
 .thanks p { color:var(--muted); margin:6px 0 4px; }
 footer { border-top:1px solid var(--border); padding:24px 0 calc(28px + env(safe-area-inset-bottom)); color:var(--muted); font-size:14px; text-align:center; }
 footer a { font-weight:700; }
+.kicker { display:inline-block; font-size:13px; font-weight:700; color:var(--accent-dark); background:var(--accent-soft); padding:5px 12px; border-radius:999px; margin-bottom:12px; }
+.hero .signup { margin:18px 0 0; padding:18px 16px; }
+.signup h2 { font-size:22px; }
+details.more { margin-top:12px; border:1px solid var(--border); border-radius:14px; padding:0 14px; }
+details.more summary { cursor:pointer; padding:12px 0; font-size:14px; font-weight:600; color:var(--accent-dark); list-style:none; }
+details.more summary::-webkit-details-marker { display:none; }
+details.more summary::before { content:'＋ '; }
+details.more[open] summary::before { content:'－ '; }
+details.more[open] { padding-bottom:14px; }
+.morehint { font-size:13px; color:var(--muted); }
+.btn { margin-top:14px; }
 @media (min-width: 860px) {
   .hero { grid-template-columns:1.1fr .9fr; padding-top:48px; }
   .benefits { grid-template-columns:repeat(3,1fr); }
   .shots { justify-content:center; overflow:visible; margin:0; }
   .phone { flex-basis:240px; }
-  .signup { max-width:560px; margin-left:auto; margin-right:auto; padding:32px; }
+  .signup { max-width:560px; padding:28px; }
 }
 </style>
 </head>
@@ -101,41 +112,27 @@ footer a { font-weight:700; }
 
   <section class="hero">
     <div>
+      <p class="kicker">Now building in Connecticut 💚</p>
       <h1>Dating without the <em>hangover</em></h1>
-      <p class="lead">Clean Date is a dating app only for sober and sober-curious people. No awkward “so, you don’t drink?” on the first date, just honest people building real connections, safely.</p>
-      <a class="cta" href="#join">Get early access</a>
-      <p class="small">Free to join · Launching soon</p>
-    </div>
-    <div class="benefits">
-      <div class="benefit"><div class="ic">🌿</div><div><h3>Sober-only community</h3><p>Everyone here is sober or sober-curious, so you can skip the bar and the explaining.</p></div></div>
-      <div class="benefit"><div class="ic">🛡️</div><div><h3>Safe by design</h3><p>Your sobriety details are shared only with matches, and you can report or unmatch anytime.</p></div></div>
-      <div class="benefit"><div class="ic">☕</div><div><h3>Dates that feel good</h3><p>Coffee, hikes, game nights: icebreakers and alcohol-free events help you meet without pressure.</p></div></div>
-    </div>
-  </section>
-
-  <section class="shots" aria-label="App screenshots">
-    <figure class="phone"><img src="waitlist/img/discover.jpg" width="540" height="1169" alt="Clean Date Discover screen with a profile card" loading="lazy" decoding="async"><figcaption>Meet sober singles</figcaption></figure>
-    <figure class="phone"><img src="waitlist/img/chat.jpg" width="540" height="1169" alt="Clean Date chat with a match" loading="lazy" decoding="async"><figcaption>Chat, call and video</figcaption></figure>
-    <figure class="phone"><img src="waitlist/img/events.jpg" width="540" height="1169" alt="Clean Date sober events list" loading="lazy" decoding="async"><figcaption>Alcohol-free events</figcaption></figure>
-  </section>
-
-  <section class="signup" id="join">
+      <p class="lead">A dating app only for sober and sober-curious people, built with women’s safety first.</p>
+      <section class="signup" id="join">
     <form id="waitlistForm" novalidate>
-      <h2>Join the waitlist</h2>
-      <p>Be first in line when Clean Date launches in your city.</p>
+      <h2>Get early access</h2>
+      <p>Free. Takes 10 seconds. Founding members get in first when we open near them.</p>
+      <label class="f" for="wlEmail">Email</label>
+      <input class="input" id="wlEmail" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" placeholder="you@email.com">
+      <div class="err" id="errEmail">Please enter a valid email address.</div>
+      <details class="more" id="wlMore">
+        <summary>Add a few details <span class="opt">(optional)</span></summary>
+        <p class="morehint">Helps us open in the right towns first.</p>
       <label class="f" for="wlName">First name <span class="opt">(optional)</span></label>
       <input class="input" id="wlName" name="name" autocomplete="given-name" maxlength="60">
-      <label class="f" for="wlEmail">Email</label>
-      <input class="input" id="wlEmail" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120">
-      <div class="err" id="errEmail">Please enter a valid email address.</div>
-      <label class="f" for="wlCity">City</label>
-      <input class="input" id="wlCity" name="city" autocomplete="address-level2" placeholder="e.g. Austin" required maxlength="80">
-      <div class="err" id="errCity">Please tell us your city.</div>
-      <label class="f" for="wlState">State</label>
-      <select class="input" id="wlState" name="state" autocomplete="address-level1" required>
+      <label class="f" for="wlCity">City <span class="opt">(optional)</span></label>
+      <input class="input" id="wlCity" name="city" autocomplete="address-level2" placeholder="e.g. Milford" maxlength="80">
+      <label class="f" for="wlState">State <span class="opt">(optional)</span></label>
+      <select class="input" id="wlState" name="state" autocomplete="address-level1">
         <option value="">Select your state</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>District of Columbia</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option><option>Outside the US</option>
       </select>
-      <div class="err" id="errState">Please choose your state.</div>
       <label class="f" for="wlSober">How long sober? <span class="opt">(optional)</span></label>
       <select class="input" id="wlSober" name="sober">
         <option value="">Prefer not to say</option><option>Sober curious</option><option>Under 6 months</option><option>6 months – 1 year</option><option>1–2 years</option><option>2–5 years</option><option>5+ years</option>
@@ -147,10 +144,11 @@ footer a { font-weight:700; }
         <label class="chip"><input type="checkbox" name="looking" value="Friendship"><span>Friendship</span></label>
         <label class="chip"><input type="checkbox" name="looking" value="Casual"><span>Casual</span></label>
       </div>
+      </details>
       <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_honey" id="wlHoney" tabindex="-1" autocomplete="off"></label></div>
       <button class="btn" type="submit" id="wlSubmit">Join the waitlist</button>
       <div class="alert" id="wlError" role="alert">Sorry, something went wrong and we couldn’t save your spot. Please check your connection and try again.</div>
-      <p class="privacy">🔒 We’ll only email you about the launch. No spam, ever.</p>
+      <p class="privacy">🔒 We never share or sell your email. We’ll only email you about the launch.</p>
     </form>
     <div class="thanks" id="wlThanks" aria-live="polite">
       <div class="big">💚</div>
@@ -162,6 +160,20 @@ footer a { font-weight:700; }
       <p class="small" id="copyMsg" aria-live="polite"></p>
     </div>
   </section>
+    </div>
+    <div class="benefits">
+      <div class="benefit"><div class="ic">🛡️</div><div><h3>Safer for women</h3><p>First dates at coffee shops and daytime spots, not bars. Report, block or unmatch anyone in one tap.</p></div></div>
+      <div class="benefit"><div class="ic">🌿</div><div><h3>Everyone gets it</h3><p>Everyone here is sober or sober-curious, so there’s no explaining why you don’t drink.</p></div></div>
+      <div class="benefit"><div class="ic">🔒</div><div><h3>Your story, your choice</h3><p>Your sobriety details are shared only if you want, and only with matches.</p></div></div>
+    </div>
+  </section>
+
+  <section class="shots" aria-label="App screenshots">
+    <figure class="phone"><img src="waitlist/img/discover.jpg" width="540" height="1169" alt="Clean Date Discover screen with a profile card" loading="lazy" decoding="async"><figcaption>Meet sober singles</figcaption></figure>
+    <figure class="phone"><img src="waitlist/img/chat.jpg" width="540" height="1169" alt="Clean Date chat with a match" loading="lazy" decoding="async"><figcaption>Chat, call and video</figcaption></figure>
+    <figure class="phone"><img src="waitlist/img/events.jpg" width="540" height="1169" alt="Clean Date sober events list" loading="lazy" decoding="async"><figcaption>Alcohol-free events</figcaption></figure>
+  </section>
+
 </div>
 <footer>
   <div class="wrap">
@@ -178,15 +190,13 @@ footer a { font-weight:700; }
   var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   function setErr(input, errEl, bad) { input.classList.toggle('bad', bad); errEl.classList.toggle('show', bad); input.setAttribute('aria-invalid', bad ? 'true' : 'false'); }
   function validate() {
-    var e = $('wlEmail'), c = $('wlCity'), st = $('wlState');
-    var badE = !emailRe.test(e.value.trim()), badC = !c.value.trim(), badS = !st.value;
-    setErr(e, $('errEmail'), badE); setErr(c, $('errCity'), badC); setErr(st, $('errState'), badS);
-    if (badE) e.focus(); else if (badC) c.focus(); else if (badS) st.focus();
-    return !badE && !badC && !badS;
+    var e = $('wlEmail');
+    var badE = !emailRe.test(e.value.trim());
+    setErr(e, $('errEmail'), badE);
+    if (badE) e.focus();
+    return !badE;
   }
   $('wlEmail').addEventListener('input', function () { if (this.classList.contains('bad') && emailRe.test(this.value.trim())) setErr(this, $('errEmail'), false); });
-  $('wlState').addEventListener('change', function () { if (this.value) setErr(this, $('errState'), false); });
-  $('wlCity').addEventListener('input', function () { if (this.classList.contains('bad') && this.value.trim()) setErr(this, $('errCity'), false); });
   form.addEventListener('submit', function (ev) {
     ev.preventDefault();
     $('wlError').classList.remove('show');
@@ -197,8 +207,8 @@ footer a { font-weight:700; }
     var payload = {
       name: name || '(not given)',
       email: $('wlEmail').value.trim(),
-      city: $('wlCity').value.trim(),
-      state: $('wlState').value,
+      city: $('wlCity').value.trim() || '(not given)',
+      state: $('wlState').value || '(not given)',
       sober: $('wlSober').value || '(not given)',
       looking: looking.join(', ') || '(not given)',
       access_key: '378885d0-7dde-499f-a8ed-10bb06b5800b',
