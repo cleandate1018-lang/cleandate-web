@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>/* PRELAUNCH LOCK: set PRELAUNCH_LOCK=false at launch. Browsers go to the waitlist; installed apps (Capacitor / CleanDateApp UA) and the owner's device (opened once with ?key=...) get in. */
+var PRELAUNCH_LOCK=true;
+(function(){try{if(!PRELAUNCH_LOCK||window.Capacitor||/CleanDateApp\//.test(navigator.userAgent||''))return;var q=new URLSearchParams(location.search);if(q.get('key')==='PmVJvhLOu6Bm3OTz'){localStorage.setItem('cd_owner','1');q.delete('key');var r=q.toString();history.replaceState(null,'',location.pathname+(r?'?'+r:'')+location.hash);return;}if(localStorage.getItem('cd_owner')==='1')return;document.documentElement.style.visibility='hidden';location.replace('https://cleandate.app/');}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Clean Date — Dating for Sober People</title>
 <style>
