@@ -648,9 +648,10 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
         <div class="em">🔍</div>
         <h3 id="emptyTitle">No one matches your filters</h3>
         <p id="emptyText">Try widening the age range or changing gender/program.</p>
-        <button class="btn" id="seeAgainBtn" style="display:none;" onclick="seeAgain()">See them again</button>
-        <button class="btn" onclick="openFilters()">Adjust Filters</button>
-        <button class="btn secondary" onclick="resetFilters()">Reset Filters</button>
+        <button class="btn" id="inviteBtn" onclick="inviteFriends()">💗 Invite friends</button>
+        <button class="btn secondary" id="seeAgainBtn" style="display:none;" onclick="seeAgain()">See them again</button>
+        <span id="filterBtns"><button class="btn secondary" onclick="openFilters()">Adjust Filters</button>
+        <button class="btn secondary" onclick="resetFilters()">Reset Filters</button></span>
       </div>
       <div id="discoverBody">
         <div class="profile-img" id="profileCard">
@@ -1078,7 +1079,9 @@ try {
     }
   }
 } catch (e) { console.warn('Old Clean Date data ignored', e); }
-const DEFAULT_EVENTS = [
+// Launch switch: sample (demo) profiles, sample likes, sample events. false = launch (none shown anywhere).
+const SHOW_SAMPLE_PROFILES = false;
+const DEFAULT_EVENTS = !SHOW_SAMPLE_PROFILES ? [] : [
   { id: 'e1', title: 'Morning Hike + Coffee', date: 'This Saturday', location: 'Local trails', desc: 'Low-pressure group hike followed by coffee.', emoji: '🥾', gradient: 'linear-gradient(135deg,#10b981,#34d399)', interested: 4, going: false },
   { id: 'e2', title: 'Board Game Night', date: 'Next Friday', location: 'Downtown café', desc: 'Alcohol-free social. Bring a game or just yourself.', emoji: '🎲', gradient: 'linear-gradient(135deg,#6366f1,#8b5cf6)', interested: 3, going: false }
 ];
@@ -1095,9 +1098,7 @@ let state = {
   events: JSON.parse(JSON.stringify(DEFAULT_EVENTS))
 };
 
-// Launch switch: sample (demo) profiles. Set to false at launch to remove them everywhere,
-// including the sample "Likes you" entries below (SAMPLE_LIKES).
-const SHOW_SAMPLE_PROFILES = true;
+// SHOW_SAMPLE_PROFILES is declared above DEFAULT_EVENTS.
 const SAMPLE_PROFILES_ALL = [
   { name: "Alex", age: 28, sober: "1 year sober", bio: "Hiking, coffee dates, board games, and early mornings. Looking for someone who gets that life is better without the hangover.", tags: ["Hiking","Coffee","Recovery","Outdoors"], kids: "No kids", height: "5'10\"", smoker: "Non-smoker", religion: "Spiritual but not religious", job: "Graphic Designer", location: "New Haven, CT", lat: 41.3083, lng: -72.9279, looking: ["Dating","Long-term"], program: "AA", gender: "Male", photos: [
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop",
@@ -1154,6 +1155,13 @@ function esc(s) {
 function cssUrl(u) { return `url("${String(u).replace(/"/g, '%22')}")`; }
 
 let toastTimer;
+async function inviteFriends() {
+  const url = 'https://cleandate.app';
+  const data = { title: 'Clean Date', text: 'Join me on Clean Date, a dating app for people living free of alcohol and drugs.', url };
+  try { if (navigator.share) { await navigator.share(data); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(url); toast('Link copied: cleandate.app'); return; } catch (e) {}
+  try { const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); toast('Link copied: cleandate.app'); } catch (e) { toast('Share this link: cleandate.app'); }
+}
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1193,6 +1201,15 @@ function loadState() {
   state.settings = { ...DEFAULT_SETTINGS, ...(state.settings && typeof state.settings === 'object' ? state.settings : {}) };
   if (typeof state.cleanLikes !== 'number' || !isFinite(state.cleanLikes) || state.cleanLikes < 0) state.cleanLikes = 1; // everyone starts with 1 free Clean Like
   if (!Array.isArray(state.events) || !state.events.length) state.events = JSON.parse(JSON.stringify(DEFAULT_EVENTS));
+  if (!SHOW_SAMPLE_PROFILES) {
+    // Launch cleanup: drop sample events, sample matches and their local chats saved on this device during testing.
+    state.events = state.events.filter(e => e.id !== 'e1' && e.id !== 'e2');
+    if (Array.isArray(state.matches)) {
+      const gone = state.matches.filter(m => !m.rt && !m.uid).map(m => m.name);
+      state.matches = state.matches.filter(m => m.rt || m.uid);
+      gone.forEach(n => { if (state.chats) delete state.chats[n]; });
+    }
+  }
   state.events.forEach((e, i) => { if (!e.id) e.id = 'e' + Date.now() + i; if (typeof e.going !== 'boolean') e.going = false; });
   if (state.user && state.loggedIn === undefined) state.loggedIn = true;
   if (state.user && typeof state.user !== 'object') { state.user = null; state.loggedIn = false; }
@@ -1872,8 +1889,11 @@ function currentProfile() {
 function loadProfile() {
   const p = currentProfile();
   const anyMatch = filteredProfiles().length > 0;
-  document.getElementById('emptyTitle').textContent = anyMatch ? "You've seen everyone for now" : 'No one matches your filters';
-  document.getElementById('emptyText').textContent = anyMatch ? 'Check back soon for new people, or widen your filters to see more.' : 'Try increasing the distance, widening the age range, or changing gender/program.';
+  const nobody = !anyMatch && cloudProfiles.length + profiles.length === 0;
+  document.querySelector('#discoverEmpty .em').textContent = nobody ? '🌱' : '🔍';
+  document.getElementById('emptyTitle').textContent = nobody ? "You're one of the first in your area" : anyMatch ? "You've seen everyone for now" : 'No one matches your filters';
+  document.getElementById('emptyText').textContent = nobody ? 'Clean Date just opened and new members are joining every day. Check back soon, and invite friends who would love dating free of alcohol and drugs.' : anyMatch ? 'Check back soon for new people, invite friends, or widen your filters to see more.' : 'Try increasing the distance, widening the age range, or changing gender/program.';
+  document.getElementById('filterBtns').style.display = nobody ? 'none' : '';
   document.getElementById('seeAgainBtn').style.display = anyMatch ? '' : 'none';
   document.getElementById('discoverEmpty').style.display = p ? 'none' : 'block';
   document.getElementById('discoverBody').style.display = p ? 'block' : 'none';
@@ -2353,7 +2373,7 @@ function renderMatches() {
       ${unread ? `<span class="unread-badge" aria-label="${unread} unread">${unread > 9 ? '9+' : unread}</span>` : ''}
       <button class="icon-btn more-btn" aria-label="More options for ${esc(m.name)}" onclick="event.stopPropagation(); openMatchMenu(${i})"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
     </div>`;
-  }).join('') || `<div class="empty"><div class="em">💬</div><h3>No conversations yet</h3><p>When you match with someone, your chat will show up here.</p><button class="btn" onclick="showScreen('discover')">Start Swiping</button></div>`;
+  }).join('') || `<div class="empty"><div class="em">💬</div><h3>No conversations yet</h3><p>When you match with someone, your chat will show up here. Clean Date is just getting started, so invite friends to help it grow.</p><button class="btn" onclick="showScreen('discover')">Start Swiping</button><button class="btn secondary" onclick="inviteFriends()">💗 Invite friends</button></div>`;
 }
 let activeChat = -1;
 function openChat(i) {
