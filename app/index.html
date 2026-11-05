@@ -3266,24 +3266,17 @@ function openSafetyTips() {
 function createFloatingPhotos() {
   const container = document.getElementById('floatingPhotos');
   if (!container) return;
-  // Brand mosaic: teal + blush gradient tiles with simple icons (no photos, so nothing looks like a real member).
-  const HEART = '<svg viewBox="0 0 32 29" aria-hidden="true"><path fill="currentColor" d="M16 28.2 13.7 26C5.6 18.7.3 13.9.3 8.1.3 3.4 4 .3 8.6.3c2.8 0 5.5 1.3 7.4 3.4C17.9 1.6 20.6.3 23.4.3 28 .3 31.7 3.4 31.7 8.1c0 5.8-5.3 10.6-13.4 17.9L16 28.2z"/></svg>';
-  const TILES = [
-    ['linear-gradient(150deg,#14b8a6,#0d9488)', HEART, '#fff'], ['linear-gradient(150deg,#FDE4EA,#F28AA0)', '☕', ''], ['linear-gradient(150deg,#ccfbf1,#5eead4)', '🥾', ''],
-    ['linear-gradient(150deg,#F28AA0,#e26a86)', '💬', ''], ['linear-gradient(150deg,#f0fdfa,#99f6e4)', HEART, '#0d9488'], ['linear-gradient(150deg,#FDE4EA,#fbcfe8)', '🎨', ''],
-    ['linear-gradient(150deg,#5eead4,#14b8a6)', '🌿', ''], ['linear-gradient(150deg,#fff1f4,#FDE4EA)', HEART, '#F28AA0'], ['linear-gradient(150deg,#99f6e4,#2dd4bf)', '🎶', '']
-  ];
+  // Lifestyle scene mosaic (AI-generated couples/friends doing sober activities; hosted in welcome/). Not member photos.
+  // Old sample-photo version: cleandate-backup-pre-events-hide.html; icon-tile version: cleandate-backup-pre-welcome-photos.html.
+  const SCENES = ['w1', 'w6', 'w2', 'w4', 'w9', 'w5', 'w7', 'w3', 'w8'].map(n => 'welcome/' + n + '.webp');
   container.innerHTML = '';
   for (let c = 0; c < 3; c++) {
     const col = document.createElement('div');
     col.className = 'col';
     for (let r = 0; r < 3; r++) {
-      const [bg, icon, color] = TILES[(c + r * 3) % TILES.length];
       const tile = document.createElement('div');
-      tile.className = 'tile brand-tile';
-      tile.style.background = bg;
-      if (color) tile.style.color = color;
-      tile.innerHTML = icon;
+      tile.className = 'tile';
+      tile.style.backgroundImage = `url("${SCENES[c * 3 + r]}")`;
       col.appendChild(tile);
     }
     container.appendChild(col);
