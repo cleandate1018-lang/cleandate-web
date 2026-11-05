@@ -495,6 +495,9 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
 .interest-chip:disabled { opacity:.45; cursor:not-allowed; }
 .interest-count { font-size:12px; font-weight:600; }
 .tag.add-tag { background:transparent; border:1.5px dashed var(--accent); cursor:pointer; font-family:inherit; }
+a.set-row { text-decoration:none; color:inherit; }
+.legal-note { font-size:13px; margin-top:10px; line-height:1.45; }
+.legal-note a { color:var(--accent-dark, #0f766e); font-weight:600; }
 </style>
 </head>
 <body>
@@ -842,8 +845,8 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
       <div class="set-card">
         <button class="set-row" id="setSafetyRow" onclick="openSafetyTips()"><span class="lbl">🛡️ Safety tips</span><span class="chev">›</span></button>
         <button class="set-row" id="setSupportRow" onclick="openSupport('settings')"><span class="lbl">✉️ Contact support<small>Send us a message and we’ll reply by email</small></span><span class="chev">›</span></button>
-        <button class="set-row" onclick="toast('Terms of Service coming soon')"><span class="lbl">Terms of Service</span><span class="chev">›</span></button>
-        <button class="set-row" onclick="toast('Privacy Policy coming soon')"><span class="lbl">Privacy Policy</span><span class="chev">›</span></button>
+        <a class="set-row" id="setTermsRow" href="https://cleandate.app/terms/" target="_blank" rel="noopener"><span class="lbl">Terms of Service</span><span class="chev">›</span></a>
+        <a class="set-row" id="setPrivacyRow" href="https://cleandate.app/privacy/" target="_blank" rel="noopener"><span class="lbl">Privacy Policy</span><span class="chev">›</span></a>
       </div>
 
       <button class="btn danger" onclick="logout()" style="margin-top:18px;">Log Out</button>
@@ -893,6 +896,7 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
       <input class="input" id="signupPassword" type="password" placeholder="Password (at least 6 characters)" autocomplete="new-password">
       <div class="auth-err" id="signupError"></div>
       <button class="btn" id="signupBtn" onclick="createAccount()">Create account</button>
+      <p class="muted legal-note" id="signupLegal">By joining, you agree to our <a href="https://cleandate.app/terms/" target="_blank" rel="noopener">Terms of Service</a> and <a href="https://cleandate.app/privacy/" target="_blank" rel="noopener">Privacy Policy</a>, and confirm you’re 18 or older.</p>
       <p class="muted" style="margin-top:10px; font-size:14px;">Already have an account? <button class="link-btn" onclick="showScreen('login')">Log in</button></p>
     </div>
   </div>
