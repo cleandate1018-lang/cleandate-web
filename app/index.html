@@ -475,6 +475,8 @@ header .btn { flex-shrink: 0; }
 .onb-mosaic .col:nth-child(2) { margin-top:-24px; }
 .onb-mosaic .col:nth-child(3) { margin-top:22px; }
 .onb-mosaic .tile { width:100%; aspect-ratio:3/4; border-radius:18px; background:#e2e8f0 center/cover no-repeat; box-shadow:0 6px 18px rgba(15,23,42,.12); flex-shrink:0; }
+.onb-mosaic .brand-tile { display:flex; align-items:center; justify-content:center; font-size:38px; }
+.onb-mosaic .brand-tile svg { width:44%; height:auto; filter:drop-shadow(0 2px 6px rgba(15,23,42,.12)); }
 .onb-mosaic::after { content:''; position:absolute; left:0; right:0; bottom:0; height:55%; background:linear-gradient(rgba(248,250,252,0), var(--bg) 85%); }
 .btn.google { background:#fff; color:#1f2937; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; gap:10px; }
 .auth-or { text-align:center; color:var(--muted); font-size:13px; margin:6px 0 12px; }
@@ -828,7 +830,7 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
       <div class="set-card">
         <label class="set-row"><span class="lbl">New matches</span><span class="switch"><input type="checkbox" id="set_notifMatches" data-key="notifMatches" onchange="setSetting(this)"><span></span></span></label>
         <label class="set-row"><span class="lbl">Messages</span><span class="switch"><input type="checkbox" id="set_notifMessages" data-key="notifMessages" onchange="setSetting(this)"><span></span></span></label>
-        <label class="set-row"><span class="lbl">Events</span><span class="switch"><input type="checkbox" id="set_notifEvents" data-key="notifEvents" onchange="setSetting(this)"><span></span></span></label>
+        <label class="set-row" id="setRowEvents"><span class="lbl">Events</span><span class="switch"><input type="checkbox" id="set_notifEvents" data-key="notifEvents" onchange="setSetting(this)"><span></span></span></label>
       </div>
 
       <div class="set-h">Discovery</div>
@@ -845,7 +847,6 @@ html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !importan
       </div>
 
       <button class="btn danger" onclick="logout()" style="margin-top:18px;">Log Out</button>
-      <button class="btn secondary" onclick="resetDemo()">Clear local cache</button>
     </div>
   </div>
 
@@ -1081,6 +1082,8 @@ try {
 } catch (e) { console.warn('Old Clean Date data ignored', e); }
 // Launch switch: sample (demo) profiles, sample likes, sample events. false = launch (none shown anywhere).
 const SHOW_SAMPLE_PROFILES = false;
+// Events switch: events are only stored on each device right now, so the tab is hidden. Set true once events are stored online.
+const SHOW_EVENTS = false;
 const DEFAULT_EVENTS = !SHOW_SAMPLE_PROFILES ? [] : [
   { id: 'e1', title: 'Morning Hike + Coffee', date: 'This Saturday', location: 'Local trails', desc: 'Low-pressure group hike followed by coffee.', emoji: '🥾', gradient: 'linear-gradient(135deg,#10b981,#34d399)', interested: 4, going: false },
   { id: 'e2', title: 'Board Game Night', date: 'Next Friday', location: 'Downtown café', desc: 'Alcohol-free social. Bring a game or just yourself.', emoji: '🎲', gradient: 'linear-gradient(135deg,#6366f1,#8b5cf6)', interested: 3, going: false }
@@ -1175,7 +1178,7 @@ function renderNavs() {
     nav.innerHTML = `
       <button data-tab="discover" onclick="showScreen('discover')" aria-label="Discover">${NAV_ICON_CARDS}</button>
       <button data-tab="matches" onclick="showScreen('matches')" aria-label="Matches">💬</button>
-      <button data-tab="events" onclick="showScreen('events')" aria-label="Events">📅</button>
+      ${SHOW_EVENTS ? `<button data-tab="events" onclick="showScreen('events')" aria-label="Events">📅</button>` : ''}
       <button data-tab="profile" onclick="showScreen('profile')" aria-label="Profile">👤</button>`;
   });
 }
@@ -1381,6 +1384,7 @@ function sendSupport() {
     });
 }
 function showScreen(id) {
+  if (!SHOW_EVENTS && (id === 'events' || id === 'eventAttendees' || id === 'createEvent')) id = 'discover';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
   if (!el) return;
@@ -3262,20 +3266,24 @@ function openSafetyTips() {
 function createFloatingPhotos() {
   const container = document.getElementById('floatingPhotos');
   if (!container) return;
-  // A tidy 3-column photo mosaic built from the sample profiles' main photos.
-  const seen = new Set();
-  const urls = [0, 1, 2].flatMap(i => SAMPLE_PROFILES_ALL.map(p => p.photos && p.photos[i]))
-    .filter(u => u && !seen.has(u) && seen.add(u))
-    .map(u => u.replace('w=800&h=1000', 'w=300&h=400'));
+  // Brand mosaic: teal + blush gradient tiles with simple icons (no photos, so nothing looks like a real member).
+  const HEART = '<svg viewBox="0 0 32 29" aria-hidden="true"><path fill="currentColor" d="M16 28.2 13.7 26C5.6 18.7.3 13.9.3 8.1.3 3.4 4 .3 8.6.3c2.8 0 5.5 1.3 7.4 3.4C17.9 1.6 20.6.3 23.4.3 28 .3 31.7 3.4 31.7 8.1c0 5.8-5.3 10.6-13.4 17.9L16 28.2z"/></svg>';
+  const TILES = [
+    ['linear-gradient(150deg,#14b8a6,#0d9488)', HEART, '#fff'], ['linear-gradient(150deg,#FDE4EA,#F28AA0)', '☕', ''], ['linear-gradient(150deg,#ccfbf1,#5eead4)', '🥾', ''],
+    ['linear-gradient(150deg,#F28AA0,#e26a86)', '💬', ''], ['linear-gradient(150deg,#f0fdfa,#99f6e4)', HEART, '#0d9488'], ['linear-gradient(150deg,#FDE4EA,#fbcfe8)', '🎨', ''],
+    ['linear-gradient(150deg,#5eead4,#14b8a6)', '🌿', ''], ['linear-gradient(150deg,#fff1f4,#FDE4EA)', HEART, '#F28AA0'], ['linear-gradient(150deg,#99f6e4,#2dd4bf)', '🎶', '']
+  ];
   container.innerHTML = '';
   for (let c = 0; c < 3; c++) {
     const col = document.createElement('div');
     col.className = 'col';
     for (let r = 0; r < 3; r++) {
-      const url = urls[(c + r * 3) % urls.length];
+      const [bg, icon, color] = TILES[(c + r * 3) % TILES.length];
       const tile = document.createElement('div');
-      tile.className = 'tile';
-      tile.style.backgroundImage = `url("${url}")`;
+      tile.className = 'tile brand-tile';
+      tile.style.background = bg;
+      if (color) tile.style.color = color;
+      tile.innerHTML = icon;
       col.appendChild(tile);
     }
     container.appendChild(col);
@@ -3284,6 +3292,7 @@ function createFloatingPhotos() {
 
 // Init
 renderNavs();
+if (!SHOW_EVENTS) { const er = document.getElementById('setRowEvents'); if (er) er.style.display = 'none'; }
 loadState();
 createFloatingPhotos();
 renderPhotoGrid('signup');
