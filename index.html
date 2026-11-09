@@ -4,22 +4,22 @@
 <meta charset="UTF-8">
 <script>/* Android app shell (Capacitor / CleanDateApp UA) never sees the waitlist: open the app instead */(function(){try{if(window.Capacitor||/CleanDateApp\//.test(navigator.userAgent||'')){location.replace('app/'+location.search+location.hash);}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Clean Date — Dating without the hangover</title>
-<meta name="description" content="A dating app made only for sober and sober-curious people. Safe, honest connections. Now open in Connecticut. Join free.">
+<title>Clean Date — Date without the pressure</title>
+<meta name="description" content="Date without the pressure. For anyone who’s struggled with addiction. Meet people who get it. Now open in Connecticut. Join the list free.">
 <meta name="theme-color" content="#0d9488">
 <link rel="canonical" href="https://cleandate.app/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Clean Date">
-<meta property="og:title" content="Clean Date — Dating without the hangover">
-<meta property="og:description" content="A dating app made only for sober and sober-curious people. Now open in Connecticut. Join free.">
+<meta property="og:title" content="Clean Date — Date without the pressure">
+<meta property="og:description" content="For anyone who’s struggled with addiction. Meet people who get it. Now open in Connecticut. Join the list free.">
 <meta property="og:url" content="https://cleandate.app/">
 <meta property="og:image" content="https://cleandate.app/waitlist/img/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Clean Date — Dating without the hangover. Now open in CT, join free at cleandate.app.">
+<meta property="og:image:alt" content="Clean Date — Date without the pressure. For anyone who’s struggled with addiction. Now open in CT.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Clean Date — Dating without the hangover">
-<meta name="twitter:description" content="A dating app made only for sober and sober-curious people. Now open in Connecticut. Join free.">
+<meta name="twitter:title" content="Clean Date — Date without the pressure">
+<meta name="twitter:description" content="For anyone who’s struggled with addiction. Meet people who get it. Now open in Connecticut. Join the list free.">
 <meta name="twitter:image" content="https://cleandate.app/waitlist/img/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 29'%3E%3Cpath fill='%230d9488' d='M16 28.2 13.7 26C5.6 18.7.3 13.9.3 8.1.3 3.4 4 .3 8.6.3c2.8 0 5.5 1.3 7.4 3.4C17.9 1.6 20.6.3 23.4.3 28 .3 31.7 3.4 31.7 8.1c0 5.8-5.3 10.6-13.4 17.9L16 28.2z'/%3E%3C/svg%3E">
 <style>
@@ -102,6 +102,13 @@ details.more[open] { padding-bottom:14px; }
   .signup { max-width:560px; padding:28px; }
 }
 
+
+.life { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0 2px; }
+.life img { width:100%; height:88px; object-fit:cover; border-radius:14px; display:block; background:#e2e8f0; }
+@media (min-width: 860px) {
+  .life img { height:130px; }
+}
+
 /* PREVIEW warm accent: blush */
 :root{--warm:#F28AA0;--warm-soft:#FDE4EA;--warm-dark:#A3244A;}
 .btn:not(.secondary),.cta{background:var(--warm);color:#2A0A0F;box-shadow:0 10px 24px rgba(242,138,160,.35);}
@@ -120,22 +127,23 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
 <div class="wrap">
   <div class="top">
     <a class="logo" href="./" aria-label="Clean Date"><svg class="logo-heart" viewBox="0 0 32 29" aria-hidden="true"><path d="M16 28.2 13.7 26C5.6 18.7.3 13.9.3 8.1.3 3.4 4 .3 8.6.3c2.8 0 5.5 1.3 7.4 3.4C17.9 1.6 20.6.3 23.4.3 28 .3 31.7 3.4 31.7 8.1c0 5.8-5.3 10.6-13.4 17.9L16 28.2z"/></svg><img src="../img/logo.png" alt="Clean Date" width="71" height="56"></a>
-    <a class="pill appLink" href="https://cleandate.app/app/">Join now</a>
+    <a class="pill" href="#join">Join the list</a>
   </div>
 
   <section class="hero">
     <div>
       <p class="kicker">Now open in Connecticut 💗 Be one of the first</p>
-      <h1>Dating without the <em>hangover</em></h1>
-      <p class="lead">A dating app only for sober and sober-curious people, built with women’s safety first.</p>
-      <div class="joinbox" id="joinApp">
-        <a class="btn cta appLink" id="joinAppBtn" href="https://cleandate.app/app/">Join Clean Date — it’s free</a>
-        <p class="joinnote">Create your profile in a minute, right in your phone’s browser. No download needed.</p>
+      <h1>Date without the <em>pressure</em></h1>
+      <p class="lead">For anyone who’s struggled with addiction. Meet people who get it.</p>
+      <div class="life" aria-label="Everyday sober moments">
+        <img src="waitlist/img/w1.webp" width="360" height="480" alt="Coffee date" loading="eager" decoding="async">
+        <img src="waitlist/img/w4.webp" width="360" height="480" alt="Friends playing a board game" loading="eager" decoding="async">
+        <img src="waitlist/img/w9.webp" width="360" height="480" alt="Cooking together" loading="eager" decoding="async">
       </div>
       <section class="signup" id="join">
     <form id="waitlistForm" novalidate>
-      <h2>Not ready yet? Get updates</h2>
-      <p>Leave your email and we’ll let you know when more people near you join.</p>
+      <h2>Join the list</h2>
+      <p>It’s free. Leave your email and we’ll keep you posted.</p>
       <label class="f" for="wlEmail">Email</label>
       <input class="input" id="wlEmail" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" placeholder="you@email.com">
       <div class="err" id="errEmail">Please enter a valid email address.</div>
@@ -163,7 +171,7 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
       </div>
       </details>
       <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_honey" id="wlHoney" tabindex="-1" autocomplete="off"></label></div>
-      <button class="btn secondary" type="submit" id="wlSubmit">Get updates</button>
+      <button class="btn" type="submit" id="wlSubmit">Join the list</button>
       <div class="alert" id="wlError" role="alert">Sorry, something went wrong and we couldn’t sign you up. Please check your connection and try again.</div>
       <p class="privacy">🔒 We never share or sell your email. We’ll only email you about Clean Date.</p>
     </form>
@@ -181,7 +189,7 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
     </div>
     <div class="benefits">
       <div class="benefit"><div class="ic">🛡️</div><div><h3>Safer for women</h3><p>First dates at coffee shops and daytime spots, not bars. Report, block or unmatch anyone in one tap.</p></div></div>
-      <div class="benefit"><div class="ic">🌿</div><div><h3>Everyone gets it</h3><p>Everyone here is sober or sober-curious, so there’s no explaining why you don’t drink.</p></div></div>
+      <div class="benefit"><div class="ic">🌿</div><div><h3>Everyone gets it</h3><p>Everyone here has struggled with addiction or is sober-curious, so there’s no explaining why you don’t drink or use.</p></div></div>
       <div class="benefit"><div class="ic">🔒</div><div><h3>Your story, your choice</h3><p>Your sobriety details are shared only if you want, and only with matches.</p></div></div>
     </div>
   </section>
@@ -239,7 +247,7 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === false || j.success === 'false') throw new Error(j.message || ('HTTP ' + r.status)); return j; }); })
       .then(function () { try { if (window.cdCountSignup) window.cdCountSignup(); } catch (e) {} showThanks(name); })
       .catch(function (err) { console.warn('Waitlist submit failed:', err && err.message); $('wlError').classList.add('show'); })
-      .then(function () { btn.disabled = false; btn.textContent = 'Get updates'; });
+      .then(function () { btn.disabled = false; btn.textContent = 'Join the list'; });
   });
   function showThanks(name) {
     $('thanksName').textContent = name ? ', ' + name : '';
