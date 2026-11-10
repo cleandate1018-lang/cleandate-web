@@ -447,6 +447,12 @@ header .btn { flex-shrink: 0; }
 .sup-err { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:12px; padding:10px 12px; font-size:14px; margin:4px 0 0; }
 .sup-hp { position:absolute !important; left:-9999px !important; width:1px; height:1px; opacity:0; }
 #supBtn:disabled { opacity:.6; cursor:default; }
+.event-host { font-size:12px; color:var(--muted); font-weight:600; margin:-2px 0 6px; }
+.event-owner { display:flex; gap:8px; margin-top:8px; }
+.event-owner button { flex:1; background:#f1f5f9; border:none; border-radius:12px; padding:9px; font:inherit; font-size:13px; font-weight:700; color:#334155; cursor:pointer; }
+.event-owner button.del { color:#b91c1c; background:#fef2f2; }
+.ev-note { background:#fffbeb; color:#92400e; border:1px solid #fde68a; border-radius:12px; padding:10px 12px; font-size:13px; margin:0 0 12px; }
+.ev-local-tag { display:inline-block; font-size:11px; font-weight:700; color:#92400e; background:#fef3c7; border-radius:999px; padding:2px 8px; margin-bottom:6px; }
 .event-meta .who { background:none; border:none; padding:0; font:inherit; color:var(--accent-dark); font-weight:700; cursor:pointer; }
 .person { display:flex; gap:12px; align-items:center; }
 .person .av { width:52px; height:52px; border-radius:50%; background:#e2e8f0 center/cover; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px; }
@@ -478,6 +484,8 @@ header .btn { flex-shrink: 0; }
 .onb-mosaic .brand-tile { display:flex; align-items:center; justify-content:center; font-size:38px; }
 .onb-mosaic .brand-tile svg { width:44%; height:auto; filter:drop-shadow(0 2px 6px rgba(15,23,42,.12)); }
 .onb-mosaic::after { content:''; position:absolute; left:0; right:0; bottom:0; height:55%; background:linear-gradient(rgba(248,250,252,0), var(--bg) 85%); }
+.signup-photo-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 16px; }
+.signup-photo-row img { width:100%; height:80px; object-fit:cover; border-radius:14px; display:block; background:#e2e8f0; }
 .btn.google { background:#fff; color:#1f2937; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; gap:10px; }
 .auth-or { text-align:center; color:var(--muted); font-size:13px; margin:6px 0 12px; }
 html.cd-nogoogle .btn.google, html.cd-nogoogle .auth-or { display:none !important; }
@@ -511,8 +519,8 @@ a.set-row { text-decoration:none; color:inherit; }
     </header>
     <div class="content" style="display:flex; flex-direction:column; justify-content:flex-end; padding:80px 20px calc(28px + env(safe-area-inset-bottom)); position:relative; z-index:2;">
       <div style="background:#fff; border-radius:24px; padding:28px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.08);">
-        <h1 style="font-size:26px; font-weight:800; margin-bottom:8px;">Dating without the hangover</h1>
-        <p class="muted" style="margin-bottom:20px;">A space for sober and sober-curious people to connect honestly.</p>
+        <h1 style="font-size:26px; font-weight:800; margin-bottom:8px;">Date without the pressure</h1>
+        <p class="muted" style="margin-bottom:20px;">For anyone who’s struggled with addiction. Meet people who get it.</p>
         <button class="btn" onclick="startSignup()">Get Started</button>
         <button class="btn secondary" onclick="showScreen('login')">Log In</button>
       </div>
@@ -764,6 +772,7 @@ a.set-row { text-decoration:none; color:inherit; }
     <div class="content">
       <h2 style="font-size:22px; margin:0 0 4px;">Upcoming gatherings</h2>
       <p class="muted" style="margin-bottom:16px;">Alcohol-free meetups near you</p>
+      <div id="eventsNote"></div>
       <div id="eventsList"></div>
     </div>
     <div class="nav"></div>
@@ -888,8 +897,13 @@ a.set-row { text-decoration:none; color:inherit; }
   <div id="account" class="screen">
     <header><button class="icon-btn" onclick="showScreen('onboarding')">←</button><div class="logo">Create account</div><div style="width:38px;"></div></header>
     <div class="content">
+      <div class="signup-photo-row" aria-hidden="true">
+        <img src="welcome/w1.webp" alt="" width="120" height="80" loading="eager">
+        <img src="welcome/w4.webp" alt="" width="120" height="80" loading="eager">
+        <img src="welcome/w9.webp" alt="" width="120" height="80" loading="eager">
+      </div>
       <h2 style="font-size:24px; margin-bottom:6px;">Join Clean Date</h2>
-      <p class="muted" style="margin-bottom:16px;">First, create your account. Next you'll build your profile.</p>
+      <p class="muted" style="margin-bottom:16px;">It’s free, and it only takes a minute.</p>
       <button class="btn google" id="googleSignupBtn" onclick="googleSignIn('signupError')"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continue with Google</button>
       <div class="auth-or">or sign up with email</div>
       <input class="input" id="signupEmail" type="email" placeholder="Email" autocomplete="email">
@@ -996,13 +1010,15 @@ a.set-row { text-decoration:none; color:inherit; }
   </div>
 
   <div id="createEvent" class="screen">
-    <header><button class="icon-btn" onclick="showScreen('events')">←</button><div class="logo">New Event</div><div style="width:38px;"></div></header>
+    <header><button class="icon-btn" onclick="showScreen('events')">←</button><div class="logo" id="createEventTitle">New Event</div><div style="width:38px;"></div></header>
     <div class="content">
-      <input class="input" id="eventTitle" placeholder="Event title">
-      <input class="input" id="eventDate" placeholder="Date & time">
-      <input class="input" id="eventLocation" placeholder="Location">
-      <textarea class="input" id="eventDesc" placeholder="Description" rows="3"></textarea>
-      <button class="btn" onclick="addEvent()">Post Event</button>
+      <input class="input" id="eventTitle" placeholder="Event title" maxlength="80">
+      <label class="muted" for="eventDate" style="display:block; font-size:13px; margin:2px 2px 4px;">Date &amp; time</label>
+      <input class="input" id="eventDate" type="datetime-local">
+      <input class="input" id="eventLocation" placeholder="Location" maxlength="120">
+      <textarea class="input" id="eventDesc" placeholder="Description" rows="3" maxlength="1000" style="font-family:inherit;"></textarea>
+      <p class="muted" style="font-size:13px; margin:0 2px 10px;">Every Clean Date member can see your event.</p>
+      <button class="btn" id="eventSaveBtn" onclick="addEvent()">Post Event</button>
     </div>
   </div>
 
@@ -1086,8 +1102,8 @@ try {
 } catch (e) { console.warn('Old Clean Date data ignored', e); }
 // Launch switch: sample (demo) profiles, sample likes, sample events. false = launch (none shown anywhere).
 const SHOW_SAMPLE_PROFILES = false;
-// Events switch: events are only stored on each device right now, so the tab is hidden. Set true once events are stored online.
-const SHOW_EVENTS = false;
+// Events switch: events are shared through Firestore events/{id} (all signed-in members see them). false hides the tab.
+const SHOW_EVENTS = true;
 const DEFAULT_EVENTS = !SHOW_SAMPLE_PROFILES ? [] : [
   { id: 'e1', title: 'Morning Hike + Coffee', date: 'This Saturday', location: 'Local trails', desc: 'Low-pressure group hike followed by coffee.', emoji: '🥾', gradient: 'linear-gradient(135deg,#10b981,#34d399)', interested: 4, going: false },
   { id: 'e2', title: 'Board Game Night', date: 'Next Friday', location: 'Downtown café', desc: 'Alcohol-free social. Bring a game or just yourself.', emoji: '🎲', gradient: 'linear-gradient(135deg,#6366f1,#8b5cf6)', interested: 3, going: false }
@@ -1403,7 +1419,9 @@ function showScreen(id) {
   window.scrollTo(0, 0);
   if (id === 'discover') loadProfile();
   if (id === 'matches') renderMatches();
-  if (id === 'events') renderEvents();
+  if (id === 'events') { evStart(); renderEvents(); }
+  if (id === 'createEvent' && !EV.formOpen) openEventForm(null);
+  EV.formOpen = false;
   if (id === 'profile') updateProfileUI();
 }
 
@@ -2969,79 +2987,215 @@ function renderChatStrip() {
   if (on) strip.scrollLeft = Math.max(0, on.offsetLeft - 16);
 }
 
-/* ---------- Events: who's going ---------- */
-function showEventAttendees(i) {
-  const e = state.events[i];
-  if (!e) return;
-  document.getElementById('attendeesTitle').textContent = e.title;
-  const others = Math.max(0, e.interested - (e.going ? 1 : 0));
-  // deterministic sample of people per event
-  const seed = String(e.id || e.title).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  const pool = profiles.filter(p => !(state.removed || []).includes(p.name));
-  const shown = [];
-  for (let k = 0; k < Math.min(others, pool.length); k++) shown.push(pool[(seed + k * 5) % pool.length]);
-  const uniq = [...new Set(shown)];
-  const extra = others - uniq.length;
-  const u = state.user;
-  const me = e.going ? `<div class="card person"><div class="av" style="${u && u.photos && u.photos[0] ? 'background-image:' + esc(cssUrl(u.photos[0])) : 'background:var(--accent)'}">${u && u.photos && u.photos[0] ? '' : esc(((u && u.name) || 'Y')[0].toUpperCase())}</div>
-      <div><strong>${esc((u && u.name) || 'You')}</strong><span class="you-tag">YOU</span><div class="muted">${esc((u && u.sober) || 'Going')}</div></div></div>` : '';
-  const list = uniq.map(p => `<div class="card person"><div class="av" style="background-image:${esc(cssUrl(p.photos[0]))}"></div>
-      <div style="min-width:0;"><strong>${esc(p.name)}, ${p.age}</strong><div class="muted">${esc(p.sober)} · ${esc(p.location)}</div></div></div>`).join('');
-  const body = (me || list) ? me + list + (extra > 0 ? `<p class="muted" style="text-align:center; margin-top:4px;">+ ${extra} more interested</p>` : '')
-    : `<div class="empty"><div class="em">👥</div><h3>No one yet</h3><p>Be the first to say you’re interested.</p></div>`;
-  document.getElementById('attendeesList').innerHTML = `<p class="muted" style="margin-bottom:12px;">${e.interested} ${e.interested === 1 ? 'person' : 'people'} interested · ${esc(e.date)} · ${esc(e.location)}</p>` + body +
-    `<button class="btn ${e.going ? 'going' : ''}" id="attendRsvp" onclick="rsvp(${i}); showEventAttendees(${i});">${e.going ? '✓ You’re going' : 'I’m interested'}</button>`;
-  showScreen('eventAttendees');
+/* ---------- Events (shared) ----------
+   Firestore events/{id} {title, startAt (ms), location, desc, emoji, theme (0-5), creatorUid, creatorName, going:[uid], createdAt, updatedAt}
+   Every signed-in member reads them; only the creator edits/deletes; anyone can add/remove only their own uid in going (RSVP).
+   Old device-only events (state.events) are uploaded once if their date can be read and is still ahead; otherwise they stay marked "On this phone only". */
+const EV_THEMES = ['linear-gradient(135deg,#0d9488,#14b8a6)', 'linear-gradient(135deg,#10b981,#34d399)', 'linear-gradient(135deg,#6366f1,#8b5cf6)', 'linear-gradient(135deg,#f43f5e,#fb7185)', 'linear-gradient(135deg,#f59e0b,#fbbf24)', 'linear-gradient(135deg,#0ea5e9,#38bdf8)'];
+const EV_EMOJIS = ['🌿', '☕', '🥾', '🎲', '🎨', '🎶', '🧘', '🍳'];
+const EV_PAST_GRACE = 2 * 3600 * 1000; // an event stays listed until 2 h after its start
+var EV = { list: [], status: 'idle', fromCache: false, editing: null, formOpen: false, migrated: false, uid: null };
+function evUid() { try { const u = window.CD && window.CD.currentUser && window.CD.currentUser(); return u ? u.uid : null; } catch (e) { return null; } }
+function evStart() {
+  const uid = evUid();
+  if (!uid) { if (!window.CD) EV.status = window.__cdLoadError ? 'nosdk' : 'loading'; return; }
+  if (EV.uid === uid && EV.status !== 'denied' && EV.status !== 'error') return;
+  if (!(window.CD && window.CD.ev)) return;
+  EV.uid = uid; EV.status = 'loading';
+  window.CD.ev.watch(uid);
 }
-
-/* ---------- Events ---------- */
+window.evOnData = (list, fromCache) => {
+  EV.list = Array.isArray(list) ? list : []; EV.fromCache = !!fromCache;
+  EV.status = 'ok';
+  if (!fromCache) evMigrateLocal();
+  if (document.getElementById('events').classList.contains('active')) renderEvents();
+  if (document.getElementById('eventAttendees').classList.contains('active') && EV.attending) showEventAttendees(EV.attending, true);
+};
+window.evOnError = code => {
+  EV.status = code === 'permission-denied' ? 'denied' : 'error';
+  if (document.getElementById('events').classList.contains('active')) renderEvents();
+};
+window.evReset = () => { Object.assign(EV, { list: [], status: 'idle', fromCache: false, editing: null, migrated: false, uid: null }); };
+function evUpcoming() {
+  const cut = Date.now() - EV_PAST_GRACE;
+  return EV.list.filter(e => typeof e.startAt === 'number' && e.startAt >= cut).sort((x, y) => x.startAt - y.startAt);
+}
+function evLocal() { return (state.events || []).filter(e => e && !e.shared); }
+function evWhen(ms) {
+  try {
+    const d = new Date(ms);
+    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  } catch (e) { return ''; }
+}
+function evFind(id) { return EV.list.find(e => e.id === id) || null; }
+function evErr(e, what) {
+  const code = e && e.code;
+  if (code === 'permission-denied') return toast('Shared events aren’t switched on yet. Try again later');
+  if (code === 'timeout') return toast('Still sending… check your connection');
+  toast('Couldn’t ' + what + '. Check your connection');
+}
+async function evMigrateLocal() {
+  if (EV.migrated || !(window.CD && window.CD.ev)) return;
+  EV.migrated = true;
+  const local = evLocal();
+  if (!local.length) return;
+  let moved = 0, dropped = 0;
+  for (const e of local) {
+    const t = Date.parse(e.date);
+    if (!isFinite(t)) continue;                                   // unreadable date: keep on this phone
+    if (t < Date.now() - EV_PAST_GRACE) { e.gone = true; dropped++; continue; } // already over
+    try {
+      await window.CD.ev.create({ title: e.title, startAt: t, location: e.location, desc: e.desc, emoji: EV_EMOJIS.includes(e.emoji) ? e.emoji : '🌿', theme: 0 }, (state.user && state.user.name) || '');
+      e.gone = true; moved++;
+    } catch (err) { break; }
+  }
+  if (moved || dropped) { state.events = state.events.filter(e => !e.gone); saveState(); }
+  if (moved) toast(moved === 1 ? 'Your event is now shared with everyone' : 'Your ' + moved + ' events are now shared with everyone');
+}
 function renderEvents() {
-  const list = document.getElementById('eventsList');
-  list.innerHTML = state.events.map((e, i) => `
-    <div class="event-card">
-      <div class="event-banner" style="background:${esc(e.gradient)};">
-        <span class="event-emoji">${esc(e.emoji)}</span>
-        <div class="event-date">${esc(e.date)}</div>
+  const list = document.getElementById('eventsList'), note = document.getElementById('eventsNote');
+  const me = evUid();
+  let msg = '';
+  if (!window.CD && window.__cdLoadError) msg = 'Couldn’t connect. Events need an internet connection — check yours and reopen the app.';
+  else if (EV.status === 'denied') msg = 'Shared events aren’t switched on yet. Check back soon.';
+  else if (EV.status === 'error') msg = 'Couldn’t load events. Check your connection.';
+  else if (EV.status === 'ok' && EV.fromCache) msg = 'You’re offline — showing the last events loaded.';
+  note.innerHTML = msg ? `<div class="ev-note" id="evNoteMsg">${esc(msg)}</div>` : '';
+  const up = evUpcoming();
+  const cards = up.map(e => {
+    const mine = !!me && e.creatorUid === me;
+    const going = !!me && Array.isArray(e.going) && e.going.includes(me);
+    const n = Array.isArray(e.going) ? e.going.length : 0;
+    const host = mine ? 'Hosted by you' : (e.creatorName ? 'Hosted by ' + e.creatorName : 'Hosted by a member');
+    return `
+    <div class="event-card" data-ev="${esc(e.id)}">
+      <div class="event-banner" style="background:${EV_THEMES[e.theme] || EV_THEMES[0]};">
+        <span class="event-emoji">${esc(e.emoji || '🌿')}</span>
+        <div class="event-date">${esc(evWhen(e.startAt))}</div>
       </div>
       <div class="event-body">
         <h3>${esc(e.title)}</h3>
-        <p class="muted">${esc(e.desc)}</p>
+        <div class="event-host">${esc(host)}</div>
+        <p class="muted">${esc(e.desc || 'No description')}</p>
         <div class="event-meta">
-          <span>📍 ${esc(e.location)}</span>
-          <button class="who" onclick="showEventAttendees(${i})">👥 ${e.interested} interested · See who's going ›</button>
+          <span>📍 ${esc(e.location || 'Location TBD')}</span>
+          <button class="who" onclick="showEventAttendees('${esc(e.id)}')">👥 ${n} interested · See who's going ›</button>
         </div>
-        <button class="btn ${e.going ? 'going' : 'secondary'}" style="margin-top:12px;" onclick="rsvp(${i})">${e.going ? '✓ You’re going' : 'I’m interested'}</button>
+        <button class="btn ${going ? 'going' : 'secondary'} ev-rsvp" style="margin-top:12px;" onclick="rsvp('${esc(e.id)}')">${going ? '✓ You’re going' : 'I’m interested'}</button>
+        ${mine ? `<div class="event-owner"><button class="ev-edit" onclick="openEventForm('${esc(e.id)}')">✏️ Edit</button><button class="del ev-del" onclick="deleteEvent('${esc(e.id)}')">🗑 Delete</button></div>` : ''}
       </div>
-    </div>
-  `).join('') || `<div class="empty"><div class="em">📅</div><h3>No events yet</h3><p>Be the first to host an alcohol-free meetup.</p></div>`;
+    </div>`;
+  }).join('');
+  const local = evLocal().map((e, i) => `
+    <div class="event-card ev-local">
+      <div class="event-banner" style="background:${EV_THEMES[0]};"><span class="event-emoji">${esc(e.emoji || '🌿')}</span><div class="event-date">${esc(e.date || 'TBD')}</div></div>
+      <div class="event-body">
+        <span class="ev-local-tag">On this phone only</span>
+        <h3>${esc(e.title)}</h3>
+        <p class="muted">${esc(e.desc || '')}</p>
+        <div class="event-meta"><span>📍 ${esc(e.location || 'Location TBD')}</span></div>
+        <div class="event-owner"><button onclick="shareLocalEvent(${i})">📤 Share with everyone</button><button class="del" onclick="deleteLocalEvent(${i})">🗑 Delete</button></div>
+      </div>
+    </div>`).join('');
+  const loading = EV.status === 'loading' || (EV.status === 'idle' && !msg);
+  list.innerHTML = cards + local || (loading ? `<div class="empty"><div class="em">📅</div><h3>Loading events…</h3></div>`
+    : `<div class="empty"><div class="em">📅</div><h3>No upcoming events</h3><p>Be the first to host an alcohol-free meetup.</p></div>`);
 }
-function rsvp(i) {
-  const e = state.events[i];
-  if (!e) return;
-  e.going = !e.going;
-  e.interested = Math.max(0, e.interested + (e.going ? 1 : -1));
-  saveState();
-  renderEvents();
-  toast(e.going ? 'You’re going! 🎉' : 'RSVP removed');
+function showEventAttendees(id, refresh) {
+  const e = evFind(id);
+  if (!e) { if (!refresh) toast('This event is no longer available'); return; }
+  EV.attending = id;
+  document.getElementById('attendeesTitle').textContent = e.title;
+  const me = evUid();
+  const going = Array.isArray(e.going) ? e.going : [];
+  const u = state.user;
+  const rows = going.map(uid => {
+    if (uid === me) return `<div class="card person"><div class="av" style="${u && u.photos && u.photos[0] ? 'background-image:' + esc(cssUrl(u.photos[0])) : 'background:var(--accent)'}">${u && u.photos && u.photos[0] ? '' : esc(((u && u.name) || 'Y')[0].toUpperCase())}</div>
+      <div><strong>${esc((u && u.name) || 'You')}</strong><span class="you-tag">YOU</span><div class="muted">${esc((u && u.sober) || 'Going')}</div></div></div>`;
+    let p = rtProfile(uid);
+    if (!p && uid === e.creatorUid && e.creatorName) p = { name: e.creatorName };
+    if (!p) { rtFetch(uid).then(x => { if (x && EV.attending === id && document.getElementById('eventAttendees').classList.contains('active')) showEventAttendees(id, true); }); return ''; }
+    const ph = p.photos && p.photos[0];
+    return `<div class="card person"><div class="av" style="${ph ? 'background-image:' + esc(cssUrl(ph)) : 'background:var(--accent)'}">${ph ? '' : esc((p.name || '?')[0].toUpperCase())}</div>
+      <div style="min-width:0;"><strong>${esc(p.name)}${p.age ? ', ' + esc(p.age) : ''}</strong>${uid === e.creatorUid ? '<span class="you-tag">HOST</span>' : ''}<div class="muted">${esc([p.sober, p.location].filter(Boolean).join(' · ') || 'Going')}</div></div></div>`;
+  });
+  const shown = rows.filter(Boolean).length, extra = going.length - shown;
+  const isGoing = !!me && going.includes(me);
+  const body = shown ? rows.join('') + (extra > 0 ? `<p class="muted" style="text-align:center; margin-top:4px;">+ ${extra} more interested</p>` : '')
+    : `<div class="empty"><div class="em">👥</div><h3>No one yet</h3><p>Be the first to say you’re interested.</p></div>`;
+  document.getElementById('attendeesList').innerHTML = `<p class="muted" style="margin-bottom:12px;">${going.length} ${going.length === 1 ? 'person' : 'people'} interested · ${esc(evWhen(e.startAt))} · ${esc(e.location || '')}</p>` + body +
+    `<button class="btn ${isGoing ? 'going' : ''}" id="attendRsvp" onclick="rsvp('${esc(id)}')">${isGoing ? '✓ You’re going' : 'I’m interested'}</button>`;
+  if (!refresh) showScreen('eventAttendees');
 }
-function addEvent() {
+function rsvp(id) {
+  const e = evFind(id), me = evUid();
+  if (!e || !me || !(window.CD && window.CD.ev)) return toast('Not connected. Try again');
+  const going = !(Array.isArray(e.going) && e.going.includes(me));
+  window.CD.ev.rsvp(id, going).then(() => toast(going ? 'You’re going! 🎉' : 'RSVP removed')).catch(err => evErr(err, 'save your RSVP'));
+}
+function openEventForm(id) {
+  const e = id ? evFind(id) : null;
+  if (id && (!e || e.creatorUid !== evUid())) return toast('Only the host can edit this event');
+  EV.editing = e ? id : null;
+  const pad = n => String(n).padStart(2, '0');
+  const local = ms => { const d = new Date(ms); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  document.getElementById('eventTitle').value = e ? e.title : '';
+  document.getElementById('eventDate').value = e ? local(e.startAt) : '';
+  document.getElementById('eventDate').min = local(Date.now());
+  document.getElementById('eventLocation').value = e ? (e.location || '') : '';
+  document.getElementById('eventDesc').value = e ? (e.desc || '') : '';
+  document.getElementById('createEventTitle').textContent = e ? 'Edit Event' : 'New Event';
+  document.getElementById('eventSaveBtn').textContent = e ? 'Save Changes' : 'Post Event';
+  EV.formOpen = true;
+  showScreen('createEvent');
+}
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout' }), ms))]); }
+async function addEvent() {
   const title = val('eventTitle');
   if (!title) return toast('Give your event a title');
-  state.events.unshift({
-    id: 'e' + Date.now(),
-    title,
-    date: val('eventDate') || 'TBD',
-    location: val('eventLocation') || 'Location TBD',
-    desc: val('eventDesc') || 'No description',
-    emoji: '🌿',
-    gradient: 'linear-gradient(135deg,#0d9488,#14b8a6)',
-    interested: 1,
-    going: true
-  });
-  saveState();
-  ['eventTitle', 'eventDate', 'eventLocation', 'eventDesc'].forEach(id => { document.getElementById(id).value = ''; });
-  toast('Event posted');
-  showScreen('events');
+  const raw = val('eventDate'), t = raw ? new Date(raw).getTime() : NaN;
+  if (!isFinite(t)) return toast('Pick a date and time');
+  if (t < Date.now() - 60000) return toast('Pick a time in the future');
+  if (!(window.CD && window.CD.ev) || !evUid()) return toast('Events need an internet connection. Try again');
+  const btn = document.getElementById('eventSaveBtn');
+  if (btn.disabled) return;
+  const data = { title: title.slice(0, 80), startAt: t, location: (val('eventLocation') || 'Location TBD').slice(0, 120), desc: val('eventDesc').slice(0, 1000) };
+  btn.disabled = true;
+  try {
+    if (EV.editing) {
+      await withTimeout(window.CD.ev.update(EV.editing, data), 12000);
+      toast('Event updated');
+    } else {
+      const theme = Math.floor(Math.random() * EV_THEMES.length);
+      await withTimeout(window.CD.ev.create(Object.assign(data, { emoji: EV_EMOJIS[theme % EV_EMOJIS.length], theme }), (state.user && state.user.name) || ''), 12000);
+      toast('Event posted');
+    }
+    EV.editing = null;
+    ['eventTitle', 'eventDate', 'eventLocation', 'eventDesc'].forEach(id => { document.getElementById(id).value = ''; });
+    showScreen('events');
+  } catch (e) { evErr(e, EV.editing ? 'save your changes' : 'post your event'); }
+  finally { btn.disabled = false; }
+}
+function deleteEvent(id) {
+  const e = evFind(id);
+  if (!e || e.creatorUid !== evUid()) return toast('Only the host can delete this event');
+  if (!confirm('Delete “' + e.title + '” for everyone?')) return;
+  window.CD.ev.remove(id).then(() => toast('Event deleted')).catch(err => evErr(err, 'delete the event'));
+}
+function deleteLocalEvent(i) {
+  const e = evLocal()[i];
+  if (!e || !confirm('Delete “' + e.title + '” from this phone?')) return;
+  state.events = state.events.filter(x => x !== e); saveState(); renderEvents();
+}
+function shareLocalEvent(i) {
+  const e = evLocal()[i];
+  if (!e) return;
+  state.events = state.events.filter(x => x !== e); saveState();
+  openEventForm(null);
+  document.getElementById('eventTitle').value = e.title || '';
+  document.getElementById('eventLocation').value = e.location && e.location !== 'Location TBD' ? e.location : '';
+  document.getElementById('eventDesc').value = e.desc && e.desc !== 'No description' ? e.desc : '';
+  toast('Pick a date and time, then post');
 }
 
 /* ---------- Filters / auth ---------- */
@@ -3309,7 +3463,7 @@ import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWith
   GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail,
   sendEmailVerification, browserLocalPersistence, setPersistence } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, limit, serverTimestamp,
-  where, orderBy, limitToLast, onSnapshot, runTransaction, writeBatch, updateDoc, addDoc, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+  where, orderBy, limitToLast, onSnapshot, runTransaction, writeBatch, updateDoc, addDoc, deleteDoc, arrayUnion, arrayRemove, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
 import { connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -3897,6 +4051,41 @@ function rtSyncCallSubs(mids) {
   if (CALL && !want.has(CALL.mid)) callHangup();
 }
 
+// ---------- Shared events: events/{id} ----------
+const EVM = { unsub: null };
+function evWatch(uid) {
+  evStop();
+  const q = query(collection(db, 'events'), where('startAt', '>=', Date.now() - 2 * 3600 * 1000), orderBy('startAt'), limit(100));
+  EVM.unsub = onSnapshot(q, { includeMetadataChanges: true }, snap => {
+    const list = [];
+    snap.forEach(ds => { const d = ds.data() || {}; list.push({ id: ds.id, title: String(d.title || ''), startAt: typeof d.startAt === 'number' ? d.startAt : null, location: d.location || '', desc: d.desc || '', emoji: d.emoji || '🌿', theme: Number.isInteger(d.theme) ? d.theme : 0, creatorUid: d.creatorUid || '', creatorName: d.creatorName || '', going: Array.isArray(d.going) ? d.going.filter(x => typeof x === 'string') : [] }); });
+    window.evOnData && window.evOnData(list, snap.metadata.fromCache);
+  }, e => {
+    EVM.unsub = null;
+    if (!e || e.code !== 'permission-denied') console.warn('Events listener error', e && e.code);
+    window.evOnError && window.evOnError(e && e.code);
+  });
+}
+function evStop() { if (EVM.unsub) { try { EVM.unsub(); } catch (e) {} } EVM.unsub = null; }
+const evText = (v, max) => String(v == null ? '' : v).slice(0, max);
+async function evCreate(d, creatorName) {
+  const u = auth.currentUser;
+  if (!u) throw Object.assign(new Error('Please log in again.'), { code: 'auth/no-user' });
+  const ref = doc(collection(db, 'events'));
+  await setDoc(ref, { title: evText(d.title, 80), startAt: Math.round(d.startAt), location: evText(d.location, 120), desc: evText(d.desc, 1000),
+    emoji: evText(d.emoji || '🌿', 8), theme: Number.isInteger(d.theme) && d.theme >= 0 && d.theme < 6 ? d.theme : 0,
+    creatorUid: u.uid, creatorName: evText(creatorName, 60), going: [u.uid], createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  return ref.id;
+}
+async function evUpdate(id, d) {
+  await updateDoc(doc(db, 'events', id), { title: evText(d.title, 80), startAt: Math.round(d.startAt), location: evText(d.location, 120), desc: evText(d.desc, 1000), updatedAt: serverTimestamp() });
+}
+async function evRsvp(id, going) {
+  const u = auth.currentUser;
+  if (!u) throw Object.assign(new Error('Please log in again.'), { code: 'auth/no-user' });
+  await updateDoc(doc(db, 'events', id), { going: going ? arrayUnion(u.uid) : arrayRemove(u.uid) });
+}
+
 function isMobile() { return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent); }
 async function google() {
   const provider = new GoogleAuthProvider();
@@ -3926,6 +4115,7 @@ window.CD = {
   resetPassword: email => sendPasswordResetEmail(auth, email),
   saveProfile, readProfile,
   saveCoords: async (lat, lng) => { const u = auth.currentUser; if (!u || !profileExists) return; await setDoc(doc(db, 'users', u.uid), { lat, lng, updatedAt: serverTimestamp() }, { merge: true }); },
+  ev: { watch: evWatch, stop: evStop, create: evCreate, update: evUpdate, remove: id => deleteDoc(doc(db, 'events', id)), rsvp: evRsvp },
   rt: { like: rtLike, send: rtSend, end: rtEnd, getMember: rtGetMember, ready: () => !RTM.off && !!RTM.uid && !!auth.currentUser, disable: () => { RTM.off = true; } },
   call: { start: callStart, accept: callAccept, decline: callDecline, hangup: callHangup, active: () => !!CALL,
     setMute: m => { if (CALL && CALL.local) CALL.local.getAudioTracks().forEach(t => { t.enabled = !m; }); },
@@ -3944,6 +4134,8 @@ onAuthStateChanged(auth, async user => {
     profileExists = false;
     cloudProfiles = [];
     rtStop();
+    evStop();
+    window.evReset && window.evReset();
     window.rtReset && window.rtReset();
     if (state.user || state.loggedIn) { state.user = null; state.loggedIn = false; saveState(); updateProfileUI(); }
     loading.classList.remove('show');
@@ -3973,6 +4165,8 @@ onAuthStateChanged(auth, async user => {
     }
     loadCloudMembers(user.uid);
     rtStart(user.uid);
+    if (window.evReset) window.evReset();
+    if (window.evStart) window.evStart();
   } catch (e) {
     console.error(e);
     toast('Signed in, but couldn’t load your cloud profile: ' + friendlyError(e));
